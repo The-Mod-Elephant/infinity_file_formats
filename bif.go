@@ -5,7 +5,7 @@ import (
 	"io"
 	"os"
 
-	"github.com/goddard/lzma"
+	lzma "github.com/goddard/lzma"
 	//	"compress/zlib"
 	"encoding/binary"
 	"errors"
