@@ -3,7 +3,6 @@ package bg
 import (
 	"encoding/binary"
 	"encoding/json"
-	"fmt"
 	"image"
 	"image/draw"
 	"image/png"
@@ -110,17 +109,17 @@ func (wed *Wed) ToJson() (string, error) {
 	return string(bytes[0:]), nil
 }
 
-func (wed *Wed) ToJsonWed() (*JsonWed, error) {
-	jw := JsonWed{}
-	err := jw.ImportOverlays(wed)
-	if err != nil {
-		return nil, fmt.Errorf("Error in importing overlays: %v", err)
-	}
-	jw.ImportDoors(wed)
-	jw.ImportWalls(wed)
+// func (wed *Wed) ToJsonWed() (*JsonWed, error) {
+// 	jw := JsonWed{}
+// 	err := jw.ImportOverlays(wed)
+// 	if err != nil {
+// 		return nil, fmt.Errorf("Error in importing overlays: %v", err)
+// 	}
+// 	jw.ImportDoors(wed)
+// 	jw.ImportWalls(wed)
 
-	return &jw, nil
-}
+// 	return &jw, nil
+// }
 
 func (wed *Wed) UpdateOffsets() {
 

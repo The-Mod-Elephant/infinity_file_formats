@@ -6,7 +6,7 @@ import (
 	"os"
 
 	// "code.google.com/p/lzma"
-	"https://github.com/lxq/lzma"
+	"github.com/itchio/lzma"
 	//	"compress/zlib"
 	"encoding/binary"
 	"errors"
