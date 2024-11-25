@@ -11,7 +11,6 @@ import (
 	"image/gif"
 	"image/png"
 	"io"
-	"io/ioutil"
 	"log"
 	"math"
 	"os"
@@ -23,7 +22,7 @@ import (
 	"text/scanner"
 )
 
-func next_pow_two(v uint) uint {
+func nextPowTwo(v uint) uint {
 	v |= v >> 1
 	v |= v >> 2
 	v |= v >> 4
@@ -33,7 +32,7 @@ func next_pow_two(v uint) uint {
 	return v
 }
 
-type BAM struct {
+type Bam struct {
 	Image           []image.Paletted
 	ImageRgba       []image.RGBA
 	Sequences       []BamSequence
@@ -239,7 +238,7 @@ func (d *decoder) decode_bamd(r io.Reader) error {
 			tok = s.Scan()
 			index, err := strconv.Atoi(s.TokenText())
 			if err != nil {
-				log.Printf("Invalid palette index: %d %+v", s.TokenText(), err)
+				log.Printf("Invalid palette index: %s %+v", s.TokenText(), err)
 			}
 			colToReplace := color.RGBA{r, g, b, a}
 			d.replaceColor[colToReplace] = index
@@ -442,7 +441,7 @@ func (d *decoder) readv1(r io.ReadSeeker, data []byte) error {
 	}
 	return nil
 }
-func (d *decoder) readv2(r io.ReadSeeker, data []byte, key *KEY) error {
+func (d *decoder) readv2(r io.ReadSeeker, _ []byte, key *KEY) error {
 	if key == nil {
 		return fmt.Errorf("V2 bams not supported if no key specified")
 	}
@@ -500,8 +499,8 @@ func (d *decoder) readv2(r io.ReadSeeker, data []byte, key *KEY) error {
 	return nil
 }
 
-func (d *decoder) decode(r io.Reader, configOnly bool, key *KEY) error {
-	data, err := ioutil.ReadAll(r)
+func (d *decoder) decode(r io.Reader, _ bool, key *KEY) error {
+	data, err := io.ReadAll(r)
 	if err != nil {
 		return fmt.Errorf("Unable to read bam: %v", err)
 	}
@@ -514,7 +513,7 @@ func (d *decoder) decode(r io.Reader, configOnly bool, key *KEY) error {
 		if err != nil {
 			return fmt.Errorf("Unable to zlib decompress BAMC file: %v", err)
 		}
-		uncompressed, err := ioutil.ReadAll(r)
+		uncompressed, err := io.ReadAll(r)
 		bamFile = bytes.NewReader(uncompressed)
 		binary.Read(bamFile, binary.LittleEndian, &d.Header)
 		data = uncompressed
@@ -534,12 +533,12 @@ func (d *decoder) decode(r io.Reader, configOnly bool, key *KEY) error {
 	return nil
 }
 
-func OpenBAM(r io.ReadSeeker, key *KEY) (*BAM, error) {
+func OpenBAM(r io.ReadSeeker, key *KEY) (*Bam, error) {
 	var d decoder
 	if err := d.decode(r, false, key); err != nil {
 		return nil, err
 	}
-	bam := &BAM{
+	bam := &Bam{
 		Image:           d.image,
 		ImageRgba:       d.imageRgba,
 		Sequences:       d.sequences,
@@ -551,7 +550,7 @@ func OpenBAM(r io.ReadSeeker, key *KEY) (*BAM, error) {
 	return bam, nil
 }
 
-func OpenBAMD(r io.ReadSeeker, palettePath string) (*BAM, error) {
+func OpenBAMD(r io.ReadSeeker, palettePath string) (*Bam, error) {
 	var d decoder
 
 	if _, err := os.Stat(palettePath); err == nil {
@@ -572,7 +571,7 @@ func OpenBAMD(r io.ReadSeeker, palettePath string) (*BAM, error) {
 	if err := d.decode_bamd(r); err != nil {
 		return nil, err
 	}
-	bam := &BAM{
+	bam := &Bam{
 		Image:           d.image,
 		Sequences:       d.sequences,
 		SequenceToImage: d.FrameLUT,
@@ -595,7 +594,7 @@ func ColorInPalette(color color.Color, palette color.Palette) bool {
 	return false
 }
 
-func MakeBamFromGif(animation *gif.GIF, sequences []image.Point) (*BAM, error) {
+func MakeBamFromGif(animation *gif.GIF, sequences []image.Point) (*Bam, error) {
 	maxHeight, maxWidth := 0, 0
 
 	for _, img := range animation.Image {
@@ -607,7 +606,7 @@ func MakeBamFromGif(animation *gif.GIF, sequences []image.Point) (*BAM, error) {
 		}
 	}
 
-	bam := &BAM{Width: maxWidth, Height: maxHeight}
+	bam := &Bam{Width: maxWidth, Height: maxHeight}
 	bam.Frames = make([]BamFrame, len(animation.Image))
 	bam.Sequences = make([]BamSequence, len(sequences))
 	bam.Image = make([]image.Paletted, len(animation.Image))
@@ -669,7 +668,7 @@ func MakeBamFromGif(animation *gif.GIF, sequences []image.Point) (*BAM, error) {
 	return bam, nil
 }
 
-func (bam *BAM) ExpandAndCenterImages() {
+func (bam *Bam) ExpandAndCenterImages() {
 	maxW, maxH := 0, 0
 	for idx, img := range bam.Image {
 		f := bam.Frames[idx]
@@ -709,7 +708,7 @@ func (bam *BAM) ExpandAndCenterImages() {
 	}
 }
 
-func (bam *BAM) MakeGif(outputPath string, name string) error {
+func (bam *Bam) MakeGif(outputPath string, name string) error {
 	bam.ExpandAndCenterImages()
 	for idx, seq := range bam.Sequences {
 		if seq.Start >= 0 && seq.Count > 0 {
@@ -742,7 +741,7 @@ type bamcHeader struct {
 	Length             uint32
 }
 
-func (bam *BAM) MakeBam(wRaw io.Writer) error {
+func (bam *Bam) MakeBam(wRaw io.Writer) error {
 	var w io.Writer
 	var b *bytes.Buffer
 	bamc := true
@@ -862,7 +861,7 @@ func rleBam(pix []uint8, rleKey uint8) []byte {
 	return out
 }
 
-func (bam *BAM) MakeBamd(output string, name string, mirror bool, offset_x int, offset_y int) {
+func (bam *Bam) MakeBamd(output string, name string, mirror bool, offset_x int, offset_y int) {
 	usedFrames := map[int]bool{}
 
 	for _, seq := range bam.Sequences {
@@ -874,7 +873,7 @@ func (bam *BAM) MakeBamd(output string, name string, mirror bool, offset_x int, 
 
 	frames := make([]int, len(usedFrames))
 	i := 0
-	for k, _ := range usedFrames {
+	for k := range usedFrames {
 		frames[i] = k
 		i++
 	}
@@ -973,7 +972,7 @@ func trimBounds(img image.Image) image.Rectangle {
 	return image.Rect(firstX, firstY, lastX, lastY)
 }
 
-func (bam *BAM) RebuildSequencesAndDropFrames() {
+func (bam *Bam) RebuildSequencesAndDropFrames() {
 	foundFrames := map[int]bool{}
 
 	for _, seq := range bam.Sequences {
@@ -985,7 +984,7 @@ func (bam *BAM) RebuildSequencesAndDropFrames() {
 	newFrames := make([]BamFrame, 0)
 	newImages := make([]image.Paletted, 0)
 	framesRemoved := 1
-	for idx, _ := range bam.Frames {
+	for idx := range bam.Frames {
 		found, ok := foundFrames[idx]
 		if found && ok {
 			newFrames = append(newFrames, bam.Frames[idx])
@@ -1005,7 +1004,7 @@ func (bam *BAM) RebuildSequencesAndDropFrames() {
 	bam.Frames = newFrames
 }
 
-func (bam *BAM) MakeSpriteSheet(imgWriter io.Writer, jsonWriter io.Writer) {
+func (bam *Bam) MakeSpriteSheet(imgWriter io.Writer, jsonWriter io.Writer) {
 	size := image.Point{0, 0}
 	maxY := 0
 
@@ -1031,8 +1030,8 @@ func (bam *BAM) MakeSpriteSheet(imgWriter io.Writer, jsonWriter io.Writer) {
 	}
 	size.Y += maxY
 
-	size.X = int(next_pow_two(uint(size.X)))
-	size.Y = int(next_pow_two(uint(size.Y)))
+	size.X = int(nextPowTwo(uint(size.X)))
+	size.Y = int(nextPowTwo(uint(size.Y)))
 	i := image.NewPaletted(image.Rect(0, 0, size.X, size.Y), bam.Image[0].Palette)
 	maxY = 0
 	y := 1

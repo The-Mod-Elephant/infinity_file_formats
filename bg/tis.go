@@ -255,7 +255,7 @@ func (tis *Tis) readV2(r io.ReadSeeker, fileLen int64, root string) error {
 			break
 		}
 		if err != nil {
-			return fmt.Errorf("Error loading pvrz: %s %v", tis.Name[0], err)
+			return fmt.Errorf("Error loading pvrz: %s %v", string(tis.Name[0]), err)
 		}
 
 		log.Printf("Loading: %s\n", fname)

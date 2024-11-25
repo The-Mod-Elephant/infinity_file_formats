@@ -23,7 +23,7 @@ type tlkHeader struct {
 
 type tlkEntry struct {
 	Flags  uint16
-	Sound  RESREF
+	Sound  Resref
 	Volume uint32
 	Pitch  uint32
 	Offset uint32
@@ -82,7 +82,7 @@ func (t *TLK) String(stringId int) (string, error) {
 	return encodedString, nil
 }
 
-func (t *TLK) hasToken(str string) bool {
+func (t *TLK) hasToken(_ string) bool {
 	return true
 }
 

@@ -36,7 +36,7 @@ type DlgTransition struct {
 	JournalText            uint32
 	TransitionTriggerIndex uint32
 	TransitionActionIndex  uint32
-	NextDlg                RESREF
+	NextDlg                Resref
 	NextState              uint32
 }
 

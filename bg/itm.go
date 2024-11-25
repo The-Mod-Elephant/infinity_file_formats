@@ -11,7 +11,7 @@ type itmHeader struct {
 	Signature, Version    [4]byte
 	GenericName           uint32
 	IdentifiedName        uint32
-	UsedUpItemID          RESREF
+	UsedUpItemID          Resref
 	ItemFlags             uint32
 	ItemType              uint16
 	NotUsableBy           uint32
@@ -31,13 +31,13 @@ type itmHeader struct {
 	MinChrRequired        uint16
 	BaseValue             uint32
 	MaxStackable          uint16
-	ItemIcon              RESREF
+	ItemIcon              Resref
 	LoreValue             uint16
-	GroundIcon            RESREF
+	GroundIcon            Resref
 	BaseWeight            uint32
 	GenericDescription    uint32
 	IdentifiedDescription uint32
-	DescriptionPicture    RESREF
+	DescriptionPicture    Resref
 	Attributes            uint32
 	AbilityOffset         uint32
 	AbilityCount          uint16
@@ -54,7 +54,7 @@ type itmAbility struct {
 	Type                 uint16
 	QuickSlotType        uint8
 	LargeDamageDice      uint8
-	QuickSlotIcon        RESREF
+	QuickSlotIcon        Resref
 	ActionType           uint8
 	ActionCount          uint8
 	Range                uint16
@@ -88,7 +88,7 @@ type ItmEffect struct {
 	Duration         uint32
 	ProbabilityUpper uint8
 	ProbabilityLower uint8
-	Res              RESREF
+	Res              Resref
 	NumDice          uint32
 	DiceSize         uint32
 	SavingThrow      uint32

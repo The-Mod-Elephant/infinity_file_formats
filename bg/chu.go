@@ -12,7 +12,7 @@ import (
 	"text/scanner"
 	"text/template"
 
-	"github.com/ajstarks/svgo"
+	svg "github.com/ajstarks/svgo"
 )
 
 type chuHeader struct {
@@ -29,7 +29,7 @@ type chuPanel struct {
 	Width  uint16
 	Height uint16
 	Type   uint16
-	Mosaic RESREF
+	Mosaic Resref
 
 	Buttons      []chuControlButton
 	Sliders      []chuControlSlider
@@ -47,7 +47,7 @@ type chuPanelHeader struct {
 	Height       uint16
 	Type         uint16
 	ControlCount uint16
-	Mosaic       RESREF
+	Mosaic       Resref
 	FirstControl uint16
 	Flags        uint16
 }
@@ -73,7 +73,7 @@ type chuControlButton struct {
 	Width         uint16
 	Height        uint16
 	Type          uint16
-	Bam           RESREF
+	Bam           Resref
 	Sequence      uint8
 	Flags         uint8
 	FrameUp       uint8
@@ -93,8 +93,8 @@ type chuControlSlider struct {
 	Width              uint16
 	Height             uint16
 	Type               uint16
-	Slider             RESREF
-	SliderThumb        RESREF
+	Slider             Resref
+	SliderThumb        Resref
 	SequenceThumb      uint16
 	FrameThumbNormal   uint16
 	FrameThumbSelected uint16
@@ -114,17 +114,17 @@ type chuControlEdit struct {
 	Width             uint16
 	Height            uint16
 	Type              uint16
-	Edit              RESREF
-	EditClientFocus   RESREF
-	EditClientNoFocus RESREF
-	EditCaret         RESREF
+	Edit              Resref
+	EditClientFocus   Resref
+	EditClientNoFocus Resref
+	EditCaret         Resref
 	SequenceEditCaret uint16
 	FrameEditCaret    uint16
 	XEditClientOffset uint16
 	YEditClientOffset uint16
 	XEditCaretOffset  uint16
 	YEditCaretOffset  uint16
-	TextFont          RESREF
+	TextFont          Resref
 	SequenceText      uint16
 	DefaultString     [32]byte
 	MaxChars          uint16
@@ -138,8 +138,8 @@ type chuControlTextDisplay struct {
 	Width               uint16
 	Height              uint16
 	Type                uint16
-	TextFont            RESREF
-	NameFont            RESREF
+	TextFont            Resref
+	NameFont            Resref
 	TextForegroundColor uint32
 	DefaultNameColor    uint32
 	BackgroundColor     uint32
@@ -154,7 +154,7 @@ type chuControlLabel struct {
 	Height              uint16
 	Type                uint16
 	StringRef           uint32
-	TextFont            RESREF
+	TextFont            Resref
 	TextForegroundColor uint32
 	BackgroundColor     uint32
 	LabelType           uint16
@@ -167,7 +167,7 @@ type chuControlScrollBar struct {
 	Width           uint16
 	Height          uint16
 	Type            uint16
-	Bam             RESREF
+	Bam             Resref
 	Sequence        uint16
 	TopFrameUp      uint16
 	TopFrameDown    uint16
@@ -465,7 +465,7 @@ func DecodeChu(r io.ReadSeeker) (*CHU, error) {
 				return nil, err
 			}
 			chu.Controls[idx].ControlID = controlBase.ControlID
-			// Re-seek back to the start of the control once we know waht kind we have
+			// Re-seek back to the start of the control once we know what kind we have
 			_, err = r.Seek(int64(control.ControlOffset), os.SEEK_SET)
 			if err != nil {
 				return nil, err

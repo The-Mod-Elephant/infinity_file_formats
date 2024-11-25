@@ -5,13 +5,13 @@ import (
 	"io"
 	"os"
 
-	"github.com/goddard/lzma"
-	//	"compress/zlib"
 	"encoding/binary"
 	"errors"
 	"fmt"
 	"log"
 	"path"
+
+	lzma "github.com/ulikunitz/xz"
 )
 
 type bifMiniHeader struct {
@@ -199,7 +199,7 @@ func RepackageBiff(keyFile io.ReadSeeker, bifIn io.ReadSeeker, filesPath string,
 				return err
 			}
 			if bytesRead != len(dataIn) {
-				fmt.Printf("Didnt read enough bytes\n")
+				fmt.Printf("Didn't read enough bytes\n")
 				return nil
 			}
 		} else {
@@ -217,7 +217,7 @@ func RepackageBiff(keyFile io.ReadSeeker, bifIn io.ReadSeeker, filesPath string,
 			}
 
 			if n != len(dataIn) {
-				fmt.Printf("Didnt read enough bytes\n")
+				fmt.Printf("Didn't read enough bytes\n")
 				return nil
 			}
 		}
@@ -273,7 +273,7 @@ func ConvertToBIFL(r io.ReadSeeker, w io.WriteSeeker) error {
 	for _, entry := range bif.VariableEntries {
 		dataIn := make([]byte, entry.Size)
 		var lzmaOut bytes.Buffer
-		out := lzma.NewWriter(&lzmaOut)
+		out, _ := lzma.NewWriter(&lzmaOut)
 
 		r.Seek(int64(entry.Offset), os.SEEK_SET)
 		io.ReadAtLeast(r, dataIn, len(dataIn))

@@ -13,5 +13,4 @@ func TestRle(t *testing.T) {
 	if bytes.Compare(out, expected) != 0 {
 		t.Errorf("rleBam %q != %q", expected, out)
 	}
-
 }

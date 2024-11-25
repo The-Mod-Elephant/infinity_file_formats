@@ -1,10 +1,7 @@
-// +build darwin
-
 package bg
 
 import (
 	"encoding/xml"
-	"fmt"
 	"image"
 	"io"
 	"log"
@@ -12,9 +9,6 @@ import (
 	"strconv"
 	"strings"
 	"text/scanner"
-
-	//polyclip "github.com/akavel/polyclip-go"
-	"github.com/paulsmith/gogeos/geos"
 )
 
 type svgVert struct {
@@ -87,7 +81,7 @@ func (poly *svgPolygon) generatePoints() {
 		return (r == ' ' || r == '\t' || r == ',')
 	})
 	poly.Points = make([]svgVert, len(vals)/2)
-	for idx, _ := range poly.Points {
+	for idx := range poly.Points {
 		x, _ := strconv.ParseFloat(vals[idx*2], 32)
 		y, _ := strconv.ParseFloat(vals[idx*2+1], 32)
 		poly.Points[idx].X = x
@@ -270,11 +264,11 @@ func (group *SvgGroup) GetPaths() []svgPath {
 		paths = append(paths, g.GetPaths()...)
 	}
 
-	for idx, _ := range paths {
+	for idx := range paths {
 		p := &paths[idx]
-		for pIdx, _ := range p.Polygons {
+		for pIdx := range p.Polygons {
 			poly := &p.Polygons[pIdx]
-			for vIdx, _ := range poly.Points {
+			for vIdx := range poly.Points {
 				v := &poly.Points[vIdx]
 				v.X += group.translate.X
 				v.Y += group.translate.Y
@@ -285,6 +279,7 @@ func (group *SvgGroup) GetPaths() []svgPath {
 	return paths
 }
 
+/*
 func geosPolygonToPolygon(poly *geos.Geometry) svgPolygon {
 	shell, err := poly.Shell()
 	if err != nil {
@@ -303,15 +298,15 @@ func geosPolygonToPolygon(poly *geos.Geometry) svgPolygon {
 
 func (group *SvgGroup) MergePolygons() {
 	if len(group.Polygons) > 0 {
-		var poly *geos.Geometry
+		var poly *geom.Polygon
 
 		for _, p := range group.Polygons {
 			if len(p.Points) > 2 {
-				verts := make([]geos.Coord, 0)
+				verts := make([]geom.Coord, 0)
 				for _, v := range p.Points {
-					verts = append(verts, geos.NewCoord(v.X, v.Y))
+					verts = append(verts, geom.Coord{v.X, v.Y})
 				}
-				verts = append(verts, geos.NewCoord(p.Points[0].X, p.Points[0].Y))
+				verts = append(verts, geom.Coord{p.Points[0].X, p.Points[0].Y})
 				if poly == nil {
 					newPoly, err := geos.NewPolygon(verts)
 					if err != nil {
@@ -367,7 +362,7 @@ func (group *SvgGroup) MergePolygons() {
 		}
 	}
 }
-
+*/
 /*
 func (group *SvgGroup) MergePolygons() {
 	if len(group.Polygons) > 0 {
@@ -418,7 +413,7 @@ func (group *SvgGroup) MergePolygons() {
 	}
 }
 */
-
+/*
 func (group *SvgGroup) MergePolygonsRecursive() {
 	group.MergePolygons()
 	for idx := range group.Groups {
@@ -426,16 +421,16 @@ func (group *SvgGroup) MergePolygonsRecursive() {
 	}
 }
 
+func (svg *SvgFile) MergePolygonsByGroup() {
+	for idx := range svg.Groups {
+		svg.Groups[idx].MergePolygonsRecursive()
+	}
+}
+*/
 func (svg *SvgFile) process() {
 	for idx := range svg.Groups {
 		g := &svg.Groups[idx]
 		g.process()
-	}
-}
-
-func (svg *SvgFile) MergePolygonsByGroup() {
-	for idx := range svg.Groups {
-		svg.Groups[idx].MergePolygonsRecursive()
 	}
 }
 

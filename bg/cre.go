@@ -21,8 +21,8 @@ type creHeader struct {
 	AnimationType                uint32
 	Colors                       [7]uint8
 	EffectVersion                uint8
-	PortraitSmall                RESREF
-	PortraitLarge                RESREF
+	PortraitSmall                Resref
+	PortraitLarge                Resref
 	Reputation                   uint8
 	HideInShadowsBase            uint8
 	ArmorClass                   uint16
@@ -62,7 +62,7 @@ type creHeader struct {
 	Proficiencies                [20]int8
 	UndeadLevel                  uint8
 	TrackingBase                 uint8
-	TrackingTarget               LONGSTRING
+	TrackingTarget               LongString
 	Speech                       [100]uint32
 	Level1                       uint8
 	Level2                       uint8
@@ -82,11 +82,11 @@ type creHeader struct {
 	MageSpecUpperWorld           uint16
 	MageSpecialization           uint16
 
-	ScriptOverride RESREF
-	ScriptClass    RESREF
-	ScriptRace     RESREF
-	ScriptGeneral  RESREF
-	ScriptDefault  RESREF
+	ScriptOverride Resref
+	ScriptClass    Resref
+	ScriptRace     Resref
+	ScriptGeneral  Resref
+	ScriptDefault  Resref
 }
 
 type creOffsets struct {
@@ -99,7 +99,7 @@ type creOffsets struct {
 	SpecialCase                 [5]uint8
 	Alignment                   uint8
 	Instance                    uint32
-	Name                        LONGSTRING
+	Name                        LongString
 	KnownSpellListOffset        uint32
 	KnownSpellListCount         uint32
 	MemorizationLevelListOffset uint32
@@ -111,11 +111,11 @@ type creOffsets struct {
 	ItemListCount               uint32
 	EffectListOffset            uint32
 	EffectListCount             uint32
-	Dialog                      RESREF
+	Dialog                      Resref
 }
 
 type creKnownSpell struct {
-	KnownSpellID RESREF
+	KnownSpellID Resref
 	SpellLevel   uint16
 	MagicType    uint16
 }
@@ -130,13 +130,13 @@ type creMemorizedSpellLevel struct {
 }
 
 type creMemorizedSpell struct {
-	SpellID   RESREF
+	SpellID   Resref
 	Flags     uint16
 	Alignment [2]uint8
 }
 
 type creItem struct {
-	ItemID       RESREF
+	ItemID       Resref
 	Wear         uint16
 	UsageCount   [3]uint16
 	DynamicFlags uint32

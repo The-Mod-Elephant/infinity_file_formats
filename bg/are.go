@@ -4,21 +4,20 @@ import (
 	"encoding/binary"
 	"encoding/json"
 	"io"
-	"os"
 )
 
-type areaHeader struct {
+type AreaHeader struct {
 	Signature, Version   [4]byte `json:"-"`
-	AreaWed              RESREF
+	AreaWed              Resref
 	LastSaved            uint32
 	AreaFlags            uint32
-	AreaNorth            RESREF
+	AreaNorth            Resref
 	AreaNorthFlags       uint32
-	AreaEast             RESREF
+	AreaEast             Resref
 	AreaEastFlags        uint32
-	AreaSouth            RESREF
+	AreaSouth            Resref
 	AreaSouthFlags       uint32
-	AreaWest             RESREF
+	AreaWest             Resref
 	AreaWestFlags        uint32
 	Areatype             uint16
 	Rainprobability      uint16
@@ -28,7 +27,7 @@ type areaHeader struct {
 	WindSpeed            uint16
 }
 
-type areaFileOffsets struct {
+type AreaFileOffsets struct {
 	ActorsOffset            uint32
 	ActorsCount             uint16
 	RegionCount             uint16
@@ -49,7 +48,7 @@ type areaFileOffsets struct {
 	VariableCount           uint16
 	TiledObjectFlagCount    uint16
 	TiledObjectFlagOffset   uint32
-	Script                  RESREF
+	Script                  Resref
 	ExploredSize            uint32
 	ExploredOffset          uint32
 	DoorsCount              uint32
@@ -64,15 +63,15 @@ type areaFileOffsets struct {
 	AutomapCount            uint32
 	ProjectileTrapsOffset   uint32
 	ProjectileTrapsCount    uint32
-	RestMovieDay            RESREF
-	RestMovieNight          RESREF
+	RestMovieDay            Resref
+	RestMovieNight          Resref
 	Unknown                 [56]byte `json:"-"`
 }
 
-type areaActor struct {
-	Name                LONGSTRING
+type AreaActor struct {
+	Name                LongString
 	CurrentX            uint16
-	CurrentY            uint16
+	currently           uint16
 	DestX               uint16
 	DestY               uint16
 	Flags               uint32
@@ -87,21 +86,21 @@ type areaActor struct {
 	FollowRange         uint16
 	TimeOfDayVisible    uint32
 	NumberTimesTalkedTo uint32
-	Dialog              RESREF
-	OverrideScript      RESREF
-	GeneralScript       RESREF
-	ClassScript         RESREF
-	RaceScript          RESREF
-	DefaultScript       RESREF
-	SpecificScript      RESREF
-	CreatureData        RESREF
+	Dialog              Resref
+	OverrideScript      Resref
+	GeneralScript       Resref
+	ClassScript         Resref
+	RaceScript          Resref
+	DefaultScript       Resref
+	SpecificScript      Resref
+	CreatureData        Resref
 	CreatureOffset      uint32     `json:"-"`
 	CreatureSize        uint32     `json:"-"`
 	Unused              [32]uint32 `json:"-"`
 }
 
-type areaRegion struct {
-	Name                    LONGSTRING
+type AreaRegion struct {
+	Name                    LongString
 	Type                    uint16
 	BoundingLeft            uint16
 	BoundingTop             uint16
@@ -111,8 +110,8 @@ type areaRegion struct {
 	VertexOffset            uint32
 	TriggerValue            uint32
 	CursorType              uint32
-	Destination             RESREF
-	EntranceName            LONGSTRING
+	Destination             Resref
+	EntranceName            LongString
 	Flags                   uint32
 	InformationText         uint32
 	TrapDetectionDifficulty uint16
@@ -121,18 +120,18 @@ type areaRegion struct {
 	TrapDetected            uint16
 	TrapOriginX             uint16
 	TrapOriginY             uint16
-	KeyItem                 RESREF
-	RegionScript            RESREF
+	KeyItem                 Resref
+	RegionScript            Resref
 	TransitionWalkToX       uint16
 	TransitionWalkToY       uint16
 	Unused                  [15]uint32 `json:"-"`
 }
 
-type areaSpawnPoint struct {
-	Name                LONGSTRING
+type AreaSpawnPoint struct {
+	Name                LongString
 	CoordX              uint16
 	CoordY              uint16
-	RandomCreatures     [10]RESREF
+	RandomCreatures     [10]Resref
 	RandomCreatureCount uint16
 	Difficulty          uint16
 	SpawnRate           uint16
@@ -148,16 +147,16 @@ type areaSpawnPoint struct {
 	Unused              [14]uint32 `json:"-"`
 }
 
-type areaEntrance struct {
-	Name        LONGSTRING
+type AreaEntrance struct {
+	Name        LongString
 	CoordX      uint16
 	CoordY      uint16
 	Orientation uint16
 	Unused      [66]byte `json:"-"`
 }
 
-type areaContainer struct {
-	Name                    LONGSTRING
+type AreaContainer struct {
+	Name                    LongString
 	CoordX                  uint16
 	CoordY                  uint16
 	Type                    uint16
@@ -175,30 +174,30 @@ type areaContainer struct {
 	BoundingBottomLeft      uint16
 	ItemOffset              uint32
 	ItemCount               uint32
-	TrapScript              RESREF
+	TrapScript              Resref
 	VertexOffset            uint32
 	VertexCount             uint16
 	TriggerRange            uint16
-	OwnedBy                 LONGSTRING
-	KeyType                 RESREF
+	OwnedBy                 LongString
+	KeyType                 Resref
 	BreakDifficulty         uint32
 	NotPickableString       uint32
 	Unused                  [14]uint32 `json:"-"`
 }
 
-type areaItem struct {
-	Resource   RESREF
+type AreaItem struct {
+	Resource   Resref
 	Expiration uint16
 	UsageCount [3]uint16
 	Flags      uint32
 }
 
-type areaVertex struct {
+type AreaVertex struct {
 	Coordinate uint16
 }
 
-type areaAmbient struct {
-	Name            LONGSTRING
+type AreaAmbient struct {
+	Name            LongString
 	CoordinateX     uint16
 	CoordinateY     uint16
 	Range           uint16
@@ -206,7 +205,7 @@ type areaAmbient struct {
 	PitchVariance   uint32
 	VolumeVariance  uint16
 	Volume          uint16
-	Sounds          [10]RESREF
+	Sounds          [10]Resref
 	SoundCount      uint16
 	Alignment2      uint16 `json:"-"`
 	Period          uint32
@@ -216,19 +215,19 @@ type areaAmbient struct {
 	Unused          [16]uint32 `json:"-"`
 }
 
-type areaVariable struct {
-	Name       LONGSTRING
+type AreaVariable struct {
+	Name       LongString
 	Type       uint16
 	ResRefType uint16
 	DWValue    uint32
 	IntValue   int32
 	FloatValue float64
-	ScriptName LONGSTRING
+	ScriptName LongString
 }
 
-type areaDoor struct {
-	Name                    LONGSTRING
-	DoorID                  RESREF
+type AreaDoor struct {
+	Name                    LongString
+	DoorID                  Resref
 	Flags                   uint32
 	OpenDoorVertexOffset    uint32 `json:"-"`
 	OpenDoorVertexCount     uint16 `json:"-"`
@@ -248,8 +247,8 @@ type areaDoor struct {
 	ClosedBlockVertexOffset uint32 `json:"-"`
 	HitPoints               uint16
 	ArmorClass              uint16
-	OpenSound               RESREF
-	ClosedSound             RESREF
+	OpenSound               Resref
+	ClosedSound             Resref
 	CursorType              uint32
 	TrapDetectionDifficulty uint16
 	TrapRemovalDifficulty   uint16
@@ -257,8 +256,8 @@ type areaDoor struct {
 	TrapDetected            uint16
 	TrapLaunchTargetX       uint16
 	TrapLaunchTargetY       uint16
-	KeyItem                 RESREF
-	DoorScript              RESREF
+	KeyItem                 Resref
+	DoorScript              Resref
 	DetectionDifficulty     uint32
 	LockDifficulty          uint32
 	WalkToX1                uint16
@@ -266,16 +265,16 @@ type areaDoor struct {
 	WalkToX2                uint16
 	WalkToY2                uint16
 	NotPickableString       uint32
-	TriggerName             LONGSTRING
+	TriggerName             LongString
 	Unused                  [3]uint32 `json:"-"`
 }
 
-type areaAnimation struct {
-	Name             LONGSTRING
+type AreaAnimation struct {
+	Name             LongString
 	CoordX           uint16
 	CoordY           uint16
 	TimeOfDayVisible uint32
-	Animation        RESREF
+	Animation        Resref
 	BamSequence      uint16
 	BamFrame         uint16
 	Flags            uint32
@@ -284,11 +283,11 @@ type areaAnimation struct {
 	StartFrameRane   uint16
 	Probability      byte
 	Period           byte
-	Palette          RESREF
+	Palette          Resref
 	Unused           uint32 `json:"-"`
 }
 
-type areaMapNote struct {
+type AreaMapNote struct {
 	CoordX uint16
 	CoordY uint16
 	Note   uint32
@@ -297,9 +296,9 @@ type areaMapNote struct {
 	Unused [9]uint32
 }
 
-type areaTiledObject struct {
-	Name                       LONGSTRING
-	TileID                     RESREF
+type AreaTiledObject struct {
+	Name                       LongString
+	TileID                     Resref
 	Flags                      uint32
 	PrimarySearchSquareStart   uint32
 	PrimarySearchSquareCount   uint16
@@ -308,8 +307,8 @@ type areaTiledObject struct {
 	Unused                     [12]uint32 `json:"-"`
 }
 
-type areaProjectileTrap struct {
-	Projectile        RESREF
+type AreaProjectileTrap struct {
+	Projectile        Resref
 	EffectBlockOffset uint32
 	EffectBlockSize   uint16
 	MissileId         uint16
@@ -322,7 +321,7 @@ type areaProjectileTrap struct {
 	PortraitNum       byte
 }
 
-type areaSong struct {
+type AreaSong struct {
 	DaySong              uint32
 	NightSong            uint32
 	WinSong              uint32
@@ -333,19 +332,19 @@ type areaSong struct {
 	AltMusic2            uint32
 	AltMusic3            uint32
 	AltMusic4            uint32
-	DayAmbient           RESREF
-	DayAmbientExtended   RESREF
+	DayAmbient           Resref
+	DayAmbientExtended   Resref
 	DayAmbientVolume     uint32
-	NightAmbient         RESREF
-	NightAmbientExtended RESREF
+	NightAmbient         Resref
+	NightAmbientExtended Resref
 	NightAmbientVolume   uint32
 	Unused               [16]uint32 `json:"-"`
 }
 
-type areaRestEncounter struct {
-	Name                 LONGSTRING
+type AreaRestEncounter struct {
+	Name                 LongString
 	RandomCreatureString [10]uint32
-	RandomCreature       [10]RESREF
+	RandomCreature       [10]Resref
 	RandomCreatureNum    uint16
 	Difficulty           uint16
 	LifeSpan             uint32
@@ -359,25 +358,25 @@ type areaRestEncounter struct {
 }
 
 type Area struct {
-	Header           areaHeader
-	Offsets          areaFileOffsets `json:"-"`
-	Actors           []areaActor
-	Regions          []areaRegion
-	SpawnPoints      []areaSpawnPoint
-	Entrances        []areaEntrance
-	Containers       []areaContainer
-	Items            []areaItem
-	Vertices         []areaVertex
-	Ambients         []areaAmbient
-	Variables        []areaVariable
+	Header           AreaHeader
+	Offsets          AreaFileOffsets `json:"-"`
+	Actors           []AreaActor
+	Regions          []AreaRegion
+	SpawnPoints      []AreaSpawnPoint
+	Entrances        []AreaEntrance
+	Containers       []AreaContainer
+	Items            []AreaItem
+	Vertices         []AreaVertex
+	Ambients         []AreaAmbient
+	Variables        []AreaVariable
 	ExploredBitmask  []byte
-	Doors            []areaDoor
-	Animations       []areaAnimation
-	MapNotes         []areaMapNote
-	TiledObjects     []areaTiledObject
-	Traps            []areaProjectileTrap
-	Song             areaSong
-	RestInterruption areaRestEncounter
+	Doors            []AreaDoor
+	Animations       []AreaAnimation
+	MapNotes         []AreaMapNote
+	TiledObjects     []AreaTiledObject
+	Traps            []AreaProjectileTrap
+	Song             AreaSong
+	RestInterruption AreaRestEncounter
 }
 
 func OpenArea(r io.ReadSeeker) (*Area, error) {
@@ -391,102 +390,102 @@ func OpenArea(r io.ReadSeeker) (*Area, error) {
 	if err != nil {
 		return nil, err
 	}
-	area.Actors = make([]areaActor, area.Offsets.ActorsCount)
-	r.Seek(int64(area.Offsets.ActorsOffset), os.SEEK_SET)
+	area.Actors = make([]AreaActor, area.Offsets.ActorsCount)
+	r.Seek(int64(area.Offsets.ActorsOffset), io.SeekStart)
 	err = binary.Read(r, binary.LittleEndian, &area.Actors)
 	if err != nil {
 		return nil, err
 	}
-	area.Regions = make([]areaRegion, area.Offsets.RegionCount)
-	r.Seek(int64(area.Offsets.RegionOffset), os.SEEK_SET)
+	area.Regions = make([]AreaRegion, area.Offsets.RegionCount)
+	r.Seek(int64(area.Offsets.RegionOffset), io.SeekStart)
 	err = binary.Read(r, binary.LittleEndian, &area.Regions)
 	if err != nil {
 		return nil, err
 	}
-	area.SpawnPoints = make([]areaSpawnPoint, area.Offsets.SpawnPointCount)
-	r.Seek(int64(area.Offsets.SpawnPointOffset), os.SEEK_SET)
+	area.SpawnPoints = make([]AreaSpawnPoint, area.Offsets.SpawnPointCount)
+	r.Seek(int64(area.Offsets.SpawnPointOffset), io.SeekStart)
 	err = binary.Read(r, binary.LittleEndian, &area.SpawnPoints)
 	if err != nil {
 		return nil, err
 	}
-	area.Entrances = make([]areaEntrance, area.Offsets.EntranceCount)
-	r.Seek(int64(area.Offsets.EntranceOffset), os.SEEK_SET)
+	area.Entrances = make([]AreaEntrance, area.Offsets.EntranceCount)
+	r.Seek(int64(area.Offsets.EntranceOffset), io.SeekStart)
 	err = binary.Read(r, binary.LittleEndian, &area.Entrances)
 	if err != nil {
 		return nil, err
 	}
-	area.Containers = make([]areaContainer, area.Offsets.ContainerCount)
-	r.Seek(int64(area.Offsets.ContainerOffset), os.SEEK_SET)
+	area.Containers = make([]AreaContainer, area.Offsets.ContainerCount)
+	r.Seek(int64(area.Offsets.ContainerOffset), io.SeekStart)
 	err = binary.Read(r, binary.LittleEndian, &area.Containers)
 	if err != nil {
 		return nil, err
 	}
-	area.Items = make([]areaItem, area.Offsets.ItemCount)
-	r.Seek(int64(area.Offsets.ItemOffset), os.SEEK_SET)
+	area.Items = make([]AreaItem, area.Offsets.ItemCount)
+	r.Seek(int64(area.Offsets.ItemOffset), io.SeekStart)
 	err = binary.Read(r, binary.LittleEndian, &area.Items)
 	if err != nil {
 		return nil, err
 	}
-	area.Vertices = make([]areaVertex, area.Offsets.VertexCount)
-	r.Seek(int64(area.Offsets.VertexOffset), os.SEEK_SET)
+	area.Vertices = make([]AreaVertex, area.Offsets.VertexCount)
+	r.Seek(int64(area.Offsets.VertexOffset), io.SeekStart)
 	err = binary.Read(r, binary.LittleEndian, &area.Vertices)
 	if err != nil {
 		return nil, err
 	}
-	area.Ambients = make([]areaAmbient, area.Offsets.AmbientCount)
-	r.Seek(int64(area.Offsets.AmbientOffset), os.SEEK_SET)
+	area.Ambients = make([]AreaAmbient, area.Offsets.AmbientCount)
+	r.Seek(int64(area.Offsets.AmbientOffset), io.SeekStart)
 	err = binary.Read(r, binary.LittleEndian, &area.Ambients)
 	if err != nil {
 		return nil, err
 	}
-	area.Variables = make([]areaVariable, area.Offsets.VariableCount)
-	r.Seek(int64(area.Offsets.VariableOffset), os.SEEK_SET)
+	area.Variables = make([]AreaVariable, area.Offsets.VariableCount)
+	r.Seek(int64(area.Offsets.VariableOffset), io.SeekStart)
 	err = binary.Read(r, binary.LittleEndian, &area.Variables)
 	if err != nil {
 		return nil, err
 	}
 	area.ExploredBitmask = make([]byte, area.Offsets.ExploredSize)
-	r.Seek(int64(area.Offsets.VariableOffset), os.SEEK_SET)
+	r.Seek(int64(area.Offsets.VariableOffset), io.SeekStart)
 	err = binary.Read(r, binary.LittleEndian, &area.ExploredBitmask)
 	if err != nil {
 		return nil, err
 	}
-	area.Doors = make([]areaDoor, area.Offsets.DoorsCount)
-	r.Seek(int64(area.Offsets.DoorsOffset), os.SEEK_SET)
+	area.Doors = make([]AreaDoor, area.Offsets.DoorsCount)
+	r.Seek(int64(area.Offsets.DoorsOffset), io.SeekStart)
 	err = binary.Read(r, binary.LittleEndian, &area.Doors)
 	if err != nil {
 		return nil, err
 	}
-	area.Animations = make([]areaAnimation, area.Offsets.AnimationCount)
-	r.Seek(int64(area.Offsets.AnimationOffset), os.SEEK_SET)
+	area.Animations = make([]AreaAnimation, area.Offsets.AnimationCount)
+	r.Seek(int64(area.Offsets.AnimationOffset), io.SeekStart)
 	err = binary.Read(r, binary.LittleEndian, &area.Animations)
 	if err != nil {
 		return nil, err
 	}
-	area.MapNotes = make([]areaMapNote, area.Offsets.AutomapCount)
-	r.Seek(int64(area.Offsets.AutomapOffset), os.SEEK_SET)
+	area.MapNotes = make([]AreaMapNote, area.Offsets.AutomapCount)
+	r.Seek(int64(area.Offsets.AutomapOffset), io.SeekStart)
 	err = binary.Read(r, binary.LittleEndian, &area.MapNotes)
 	if err != nil {
 		return nil, err
 	}
-	area.TiledObjects = make([]areaTiledObject, area.Offsets.TiledObjectCount)
-	r.Seek(int64(area.Offsets.TiledObjectOffset), os.SEEK_SET)
+	area.TiledObjects = make([]AreaTiledObject, area.Offsets.TiledObjectCount)
+	r.Seek(int64(area.Offsets.TiledObjectOffset), io.SeekStart)
 	err = binary.Read(r, binary.LittleEndian, &area.TiledObjects)
 	if err != nil {
 		return nil, err
 	}
-	area.Traps = make([]areaProjectileTrap, area.Offsets.ProjectileTrapsCount)
-	r.Seek(int64(area.Offsets.ProjectileTrapsOffset), os.SEEK_SET)
+	area.Traps = make([]AreaProjectileTrap, area.Offsets.ProjectileTrapsCount)
+	r.Seek(int64(area.Offsets.ProjectileTrapsOffset), io.SeekStart)
 	err = binary.Read(r, binary.LittleEndian, &area.Traps)
 	if err != nil {
 		return nil, err
 	}
-	r.Seek(int64(area.Offsets.SongEntriesOffset), os.SEEK_SET)
+	r.Seek(int64(area.Offsets.SongEntriesOffset), io.SeekStart)
 	err = binary.Read(r, binary.LittleEndian, &area.Song)
 	if err != nil {
 		return nil, err
 	}
-	r.Seek(int64(area.Offsets.RestInterruptionsOffset), os.SEEK_SET)
+	r.Seek(int64(area.Offsets.RestInterruptionsOffset), io.SeekStart)
 	err = binary.Read(r, binary.LittleEndian, &area.RestInterruption)
 	if err != nil {
 		return nil, err

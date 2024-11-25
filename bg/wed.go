@@ -30,7 +30,7 @@ type wedHeader struct {
 type wedOverlay struct {
 	Width                 uint16
 	Height                uint16
-	Name                  RESREF
+	Name                  Resref
 	NumUniqueTiles        uint16
 	LayerFlags            uint16
 	TilemapOffset         uint32
@@ -46,7 +46,7 @@ type wedHeader2 struct {
 }
 
 type wedDoor struct {
-	Name                RESREF
+	Name                Resref
 	State               uint16
 	DoorTileCellIndex   uint16
 	DoorTileCellCount   uint16
@@ -150,7 +150,7 @@ func (wed *Wed) UpdateOffsets() {
 	tmOffset := int(wed.Header.DoorOffset) + binary.Size(wed.Doors)
 	tmIndexOffset := int(wed.Header.DoorTileCellsOffset) + binary.Size(wed.DoorTileCells)
 
-	for idx, _ := range wed.Overlays {
+	for idx := range wed.Overlays {
 		overlay := &wed.Overlays[idx]
 		overlay.TilemapOffset = uint32(tmOffset)
 		overlay.TileIndexLookupOffset = uint32(tmIndexOffset)
@@ -165,7 +165,7 @@ func (wed *Wed) UpdateOffsets() {
 
 	//Update door offsets
 	doorPolyOffset := int(wed.Header2.PolygonOffset) + binary.Size(wedPolygon{})*len(wed.Doors)
-	for idx, _ := range wed.Doors {
+	for idx := range wed.Doors {
 		door := &wed.Doors[idx]
 
 		door.PolygonOpenOffset = uint32(doorPolyOffset)

@@ -1,5 +1,3 @@
-// +build darwin
-
 package bg
 
 import (
@@ -19,7 +17,7 @@ import (
 	"sort"
 	"strings"
 
-	"github.com/ajstarks/svgo"
+	svg "github.com/ajstarks/svgo"
 )
 
 type JsonWed struct {
@@ -189,7 +187,7 @@ func (jw *JsonWed) Export(name string, dir string) error {
 		f.Close()
 	}
 
-	for overlayIdx, _ := range jw.Overlays[1:] {
+	for overlayIdx := range jw.Overlays[1:] {
 		overlay := &jw.Overlays[1+overlayIdx]
 		if overlay.Width > 0 && overlay.Height > 0 {
 			tileList := make([]jsonWedTilemap, 0)
@@ -811,7 +809,7 @@ func (jw *JsonWed) importImages() error {
 
 			f.Close()
 		}
-		for idx, _ := range overlay.Animations {
+		for idx := range overlay.Animations {
 			animation := &overlay.Animations[idx]
 			f, err := os.Open(animation.Name + ".png")
 			if err != nil {
@@ -887,11 +885,11 @@ func (jw *JsonWed) importSvg() error {
 }
 
 func (jw *JsonWed) generateTilemaps() error {
-	for idx, _ := range jw.Overlays {
+	for idx := range jw.Overlays {
 		overlay := &jw.Overlays[idx]
 
 		overlay.Tilemap = make([]jsonWedTilemap, overlay.Width*overlay.Height)
-		for tmIdx, _ := range overlay.Tilemap {
+		for tmIdx := range overlay.Tilemap {
 			tm := &overlay.Tilemap[tmIdx]
 
 			tm.Id = tmIdx

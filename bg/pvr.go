@@ -58,14 +58,18 @@ const ETC_MIN_TEXHEIGHT uint32 = 4
 const DXT_MIN_TEXWIDTH uint32 = 4
 const DXT_MIN_TEXHEIGHT uint32 = 4
 
-/*!***********************************************************************
-  @Function		util_number_is_power_2
-  @Input		input A number
-  @Returns		TRUE if the number is an integer power of two, else FALSE.
-  @Description	Check that a number is an integer power of two, i.e.
-				1, 2, 4, 8, ... etc.
-				Returns FALSE for zero.
-*************************************************************************/
+/*
+!***********************************************************************
+
+	  @Function		util_number_is_power_2
+	  @Input		input A number
+	  @Returns		TRUE if the number is an integer power of two, else FALSE.
+	  @Description	Check that a number is an integer power of two, i.e.
+					1, 2, 4, 8, ... etc.
+					Returns FALSE for zero.
+
+************************************************************************
+*/
 func util_number_is_power_2(input uint32) bool {
 	minus1 := uint32(0)
 
@@ -77,13 +81,17 @@ func util_number_is_power_2(input uint32) bool {
 	return ((input | minus1) == (input ^ minus1))
 }
 
-/*!***********************************************************************
- @Function		Unpack5554Colour
- @Input			pBlock
- @Input			ABColours
- @Description	Given a block, extract the colour information and convert
-				to 5554 formats
-*************************************************************************/
+/*
+!***********************************************************************
+
+	 @Function		Unpack5554Colour
+	 @Input			pBlock
+	 @Input			ABColours
+	 @Description	Given a block, extract the colour information and convert
+					to 5554 formats
+
+************************************************************************
+*/
 func Unpack5554Colour(pBlock []uint32, ABColours *[2][4]uint32) {
 	var RawBits [2]uint32
 
@@ -143,18 +151,22 @@ func Unpack5554Colour(pBlock []uint32, ABColours *[2][4]uint32) {
 	}
 }
 
-/*!***********************************************************************
- @Function		UnpackModulations
- @Input			pBlock
- @Input			Do2bitMode
- @Input			ModulationVals
- @Input			ModulationModes
- @Input			StartX
- @Input			StartY
- @Description	Given the block and the texture type and it's relative
-				position in the 2x2 group of blocks, extract the bit
-				patterns for the fully defined pixels.
-*************************************************************************/
+/*
+!***********************************************************************
+
+	 @Function		UnpackModulations
+	 @Input			pBlock
+	 @Input			Do2bitMode
+	 @Input			ModulationVals
+	 @Input			ModulationModes
+	 @Input			StartX
+	 @Input			StartY
+	 @Description	Given the block and the texture type and it's relative
+					position in the 2x2 group of blocks, extract the bit
+					patterns for the fully defined pixels.
+
+************************************************************************
+*/
 func UnpackModulations(pBlock []uint32,
 	Do2bitMode bool,
 	ModulationVals *[8][16]uint32,
@@ -215,23 +227,27 @@ func UnpackModulations(pBlock []uint32,
 	//assert(ModulationBits==0);
 }
 
-/*!***********************************************************************
- @Function		InterpolateColours
- @Input			ColourP
- @Input			ColourQ
- @Input			ColourR
- @Input			ColourS
- @Input			Do2bitMode
- @Input			x
- @Input			y
- @Modified		Result
- @Description	This performs a HW bit accurate interpolation of either the
-				A or B colours for a particular pixel.
+/*
+!***********************************************************************
 
-				NOTE: It is assumed that the source colours are in ARGB 5554
-				format - This means that some "preparation" of the values will
-				be necessary.
-*************************************************************************/
+	 @Function		InterpolateColours
+	 @Input			ColourP
+	 @Input			ColourQ
+	 @Input			ColourR
+	 @Input			ColourS
+	 @Input			Do2bitMode
+	 @Input			x
+	 @Input			y
+	 @Modified		Result
+	 @Description	This performs a HW bit accurate interpolation of either the
+					A or B colours for a particular pixel.
+
+					NOTE: It is assumed that the source colours are in ARGB 5554
+					format - This means that some "preparation" of the values will
+					be necessary.
+
+************************************************************************
+*/
 func InterpolateColours(ColourP [4]uint32,
 	ColourQ [4]uint32,
 	ColourR [4]uint32,
@@ -316,17 +332,21 @@ func InterpolateColours(ColourP [4]uint32,
 
 }
 
-/*!***********************************************************************
- @Function		GetModulationValue
- @Input			x
- @Input			y
- @Input			Do2bitMode
- @Input			ModulationVals
- @Input			ModulationModes
- @Input			Mod
- @Input			DoPT
- @Description	Get the modulation value as a numerator of a fraction of 8ths
-*************************************************************************/
+/*
+!***********************************************************************
+
+	@Function		GetModulationValue
+	@Input			x
+	@Input			y
+	@Input			Do2bitMode
+	@Input			ModulationVals
+	@Input			ModulationModes
+	@Input			Mod
+	@Input			DoPT
+	@Description	Get the modulation value as a numerator of a fraction of 8ths
+
+************************************************************************
+*/
 func GetModulationValue(x uint32,
 	y uint32,
 	Do2bitMode bool,
@@ -383,19 +403,23 @@ func GetModulationValue(x uint32,
 	*Mod = ModVal
 }
 
-/*!***********************************************************************
- @Function		TwiddleUV
- @Input			YSize	Y dimension of the texture in pixels
- @Input			XSize	X dimension of the texture in pixels
- @Input			YPos	Pixel Y position
- @Input			XPos	Pixel X position
- @Returns		The twiddled offset of the pixel
- @Description	Given the Block (or pixel) coordinates and the dimension of
-				the texture in blocks (or pixels) this returns the twiddled
-				offset of the block (or pixel) from the start of the map.
+/*
+!***********************************************************************
 
-				NOTE the dimensions of the texture must be a power of 2
-*************************************************************************/
+	 @Function		TwiddleUV
+	 @Input			YSize	Y dimension of the texture in pixels
+	 @Input			XSize	X dimension of the texture in pixels
+	 @Input			YPos	Pixel Y position
+	 @Input			XPos	Pixel X position
+	 @Returns		The twiddled offset of the pixel
+	 @Description	Given the Block (or pixel) coordinates and the dimension of
+					the texture in blocks (or pixels) this returns the twiddled
+					offset of the block (or pixel) from the start of the map.
+
+					NOTE the dimensions of the texture must be a power of 2
+
+************************************************************************
+*/
 var DisableTwiddlingRoutine int = 0
 
 func TwiddleUV(YSize uint32, XSize uint32, YPos uint32, XPos uint32) uint32 {
@@ -449,16 +473,20 @@ func TwiddleUV(YSize uint32, XSize uint32, YPos uint32, XPos uint32) uint32 {
 	return Twiddled
 }
 
-/*!***********************************************************************
- @Function		Decompress
- @Input			pCompressedData The PVRTC texture data to decompress
- @Input			Do2BitMode Signifies whether the data is PVRTC2 or PVRTC4
- @Input			XDim X dimension of the texture
- @Input			YDim Y dimension of the texture
- @Input			AssumeImageTiles Assume the texture data tiles
- @Modified		pResultImage The decompressed texture data
- @Description	Decompresses PVRTC to RGBA 8888
-*************************************************************************/
+/*
+!***********************************************************************
+
+	@Function		Decompress
+	@Input			pCompressedData The PVRTC texture data to decompress
+	@Input			Do2BitMode Signifies whether the data is PVRTC2 or PVRTC4
+	@Input			XDim X dimension of the texture
+	@Input			YDim Y dimension of the texture
+	@Input			AssumeImageTiles Assume the texture data tiles
+	@Modified		pResultImage The decompressed texture data
+	@Description	Decompresses PVRTC to RGBA 8888
+
+************************************************************************
+*/
 func Decompress(pCompressedData []uint32,
 	Do2bitMode bool,
 	XDim uint32,

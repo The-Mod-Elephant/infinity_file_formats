@@ -135,7 +135,7 @@ func (pq *priorityQueue) top() interface{} {
 }
 
 // clip clips r against each image's bounds (after translating into
-// the destination image's co-ordinate space) and shifts the point
+// the destination image's coordinate space) and shifts the point
 // sp by the same amount as the change in r.Min.
 func clip(dst draw.Image, r *image.Rectangle, src image.Image, sp *image.Point) {
 	orig := r.Min
@@ -152,7 +152,7 @@ func clip(dst draw.Image, r *image.Rectangle, src image.Image, sp *image.Point) 
 
 // MedianCutQuantizer constructs a palette with a maximum of
 // NumColor colors by iteratively splitting clusters of color
-// points mapped on a three-dimensional (RGB) Euclidian space.
+// points mapped on a three-dimensional (RGB) Euclidean space.
 // Once the number of clusters is within the specified bounds,
 // the resulting color is computed by averaging those within
 // each grouping.

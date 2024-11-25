@@ -31,7 +31,7 @@ type keyBifEntry struct {
 }
 
 type keyResourceEntry struct {
-	Name     RESREF
+	Name     Resref
 	Type     uint16
 	Location uint32
 }
@@ -144,7 +144,7 @@ func OpenKEY(r io.ReadSeeker, root string) (*KEY, error) {
 }
 
 func (key *KEY) GetBifId(bifPath string) int {
-	for idx, _ := range key.bifs {
+	for idx := range key.bifs {
 		p, _ := key.GetBifPath(uint32(idx))
 		thePath := strings.Trim(path.Base(p), " \000")
 		if thePath == bifPath {
