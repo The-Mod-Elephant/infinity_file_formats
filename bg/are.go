@@ -71,7 +71,7 @@ type AreaFileOffsets struct {
 type AreaActor struct {
 	Name                LongString
 	CurrentX            uint16
-	currently           uint16
+	CurrentY            uint16
 	DestX               uint16
 	DestY               uint16
 	Flags               uint32
