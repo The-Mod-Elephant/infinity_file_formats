@@ -2,6 +2,7 @@ package bg
 
 import (
 	"encoding/binary"
+	"encoding/json"
 	"fmt"
 	"io"
 	"os"
@@ -200,4 +201,14 @@ func OpenITM(r io.ReadSeeker) (*ITM, error) {
 	binary.Read(r, binary.LittleEndian, &itm.Effects)
 
 	return itm, nil
+}
+
+func (itm *ITM) WriteJson(w io.Writer) error {
+	bytes, err := json.MarshalIndent(itm, "", "\t")
+	if err != nil {
+		return err
+	}
+
+	_, err = w.Write(bytes)
+	return err
 }
