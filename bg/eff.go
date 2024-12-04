@@ -1,9 +1,18 @@
 package bg
 
+import (
+	"encoding/binary"
+	"encoding/json"
+	"io"
+	"strconv"
+	"unicode/utf8"
+)
+
 type effHeader struct {
 	Signature, Version [4]byte
 }
-type effEffect struct {
+
+type EffEffect struct {
 	Signature, Version [4]byte
 	EffectID           uint32
 	TargetType         uint32
@@ -21,16 +30,16 @@ type effEffect struct {
 	SaveMod            int32
 	Special            uint32
 
-	School          uint32
-	JeremyIsAnIdiot uint32
-	MinLevel        uint32
-	MaxLevel        uint32
-	Flags           uint32
+	School   uint32
+	Unknown  uint32
+	MinLevel uint32
+	MaxLevel uint32
+	Flags    uint32
 
 	EffectAmount2 int32
 	EffectAmount3 int32
 	EffectAmount4 int32
-	EffectAmound5 int32
+	EffectAmount5 int32
 
 	Res2 [8]byte
 	Res3 [8]byte
@@ -49,4 +58,59 @@ type effEffect struct {
 	FirstCall      uint32
 	SecondaryType  uint32
 	Pad            [15]uint32
+}
+
+func OpenEff(r io.ReadSeeker) (*ItmEffect, *EffEffect, error) {
+	effHeader := &effHeader{}
+	effv1 := &ItmEffect{}
+	effv2 := &EffEffect{}
+
+	err := binary.Read(r, binary.LittleEndian, effHeader)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	buf := make([]byte, 1)
+	_ = utf8.EncodeRune(buf, rune(effHeader.Version[1]))
+	version, err := strconv.Atoi(string(buf))
+	if err != nil {
+		return nil, nil, err
+	}
+
+	if version == 1 {
+		_, err = r.Seek(0, 0)
+		if err != nil {
+			return nil, nil, err
+		}
+		err = binary.Read(r, binary.LittleEndian, effv1)
+		if err != nil {
+			return nil, nil, err
+		}
+	} else if version == 2 {
+		err = binary.Read(r, binary.LittleEndian, effv2)
+		if err != nil {
+			return nil, nil, err
+		}
+	}
+	return effv1, effv2, nil
+}
+
+func (eff *ItmEffect) WriteJson(w io.Writer) error {
+	bytes, err := json.MarshalIndent(eff, "", "\t")
+	if err != nil {
+		return err
+	}
+
+	_, err = w.Write(bytes)
+	return err
+}
+
+func (eff *EffEffect) WriteJson(w io.Writer) error {
+	bytes, err := json.MarshalIndent(eff, "", "\t")
+	if err != nil {
+		return err
+	}
+
+	_, err = w.Write(bytes)
+	return err
 }

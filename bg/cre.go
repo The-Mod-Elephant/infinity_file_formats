@@ -167,7 +167,7 @@ type CRE struct {
 	MemorizedSpellLevels []creMemorizedSpellLevel
 	MemorizedSpells      []creMemorizedSpell
 	Effects              []ItmEffect
-	Effectsv2            []effEffect
+	Effectsv2            []EffEffect
 	Items                []creItem
 	Equipment            creEquipment
 }
@@ -284,7 +284,7 @@ func OpenCre(r io.ReadSeeker) (*CRE, error) {
 			return nil, err
 		}
 	} else if cre.Header.EffectVersion == 1 {
-		cre.Effectsv2 = make([]effEffect, cre.Offsets.EffectListCount)
+		cre.Effectsv2 = make([]EffEffect, cre.Offsets.EffectListCount)
 		_, err = r.Seek(int64(cre.Offsets.EffectListOffset), os.SEEK_SET)
 		if err != nil {
 			return nil, err
