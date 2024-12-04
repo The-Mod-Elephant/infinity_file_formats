@@ -2,6 +2,7 @@ package bg
 
 import (
 	"encoding/binary"
+	"encoding/json"
 	"io"
 	"os"
 )
@@ -118,4 +119,14 @@ func OpenSPL(r io.ReadSeeker) (*SPL, error) {
 	binary.Read(r, binary.LittleEndian, &spl.Effects)
 
 	return &spl, nil
+}
+
+func (spl *SPL) WriteJson(w io.Writer) error {
+	bytes, err := json.MarshalIndent(spl, "", "\t")
+	if err != nil {
+		return err
+	}
+
+	_, err = w.Write(bytes)
+	return err
 }
