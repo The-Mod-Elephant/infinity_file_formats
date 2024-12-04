@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"compress/zlib"
 	"encoding/binary"
+	"encoding/json"
 	"fmt"
 	"image"
 	"image/color"
@@ -1069,4 +1070,14 @@ func (bam *Bam) MakeSpriteSheet(imgWriter io.Writer, jsonWriter io.Writer) {
 	jsonData += fmt.Sprintf("]}\n")
 	jsonWriter.Write([]byte(jsonData))
 	png.Encode(imgWriter, i)
+}
+
+func (bam *Bam) WriteJson(w io.Writer) error {
+	bytes, err := json.MarshalIndent(bam, "", "\t")
+	if err != nil {
+		return err
+	}
+
+	_, err = w.Write(bytes)
+	return err
 }
