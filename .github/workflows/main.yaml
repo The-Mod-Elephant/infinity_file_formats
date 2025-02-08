@@ -15,3 +15,43 @@ jobs:
         set-safe-directory: true
     - uses: actions/setup-python@v3
     - uses: pre-commit/action@v3.0.0
+  test:
+    runs-on: ubuntu-latest
+    container: golang:1.23-alpine3.20
+    strategy:
+      matrix:
+        os: [linux, darwin, windows]
+        arch: [arm64, amd64]
+        exclude:
+          - os: windows
+            arch: arm64
+    steps:
+      - name: Install git
+        run: apk add --update --no-cache git
+      - name: Checkout
+        uses: actions/checkout@v4.2.2
+        with:
+          fetch-depth: 0
+      - name: Build
+        run: |
+          go test -v ./...
+  build:
+    runs-on: ubuntu-latest
+    container: golang:1.23-alpine3.20
+    strategy:
+      matrix:
+        os: [linux, darwin, windows]
+        arch: [arm64, amd64]
+        exclude:
+          - os: windows
+            arch: arm64
+    steps:
+      - name: Install git
+        run: apk add --update --no-cache git
+      - name: Checkout
+        uses: actions/checkout@v4.2.2
+        with:
+          fetch-depth: 0
+      - name: Build
+        run: |
+          go build ./...
