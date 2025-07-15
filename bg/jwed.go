@@ -777,7 +777,7 @@ func (jw *JsonWed) importImages() error {
 		if overlay.Name != "" {
 			f, err := os.Open(overlay.Name + ".png")
 			if err != nil {
-				log.Printf("Unable to open overlay png: " + overlay.Name + ".png")
+				log.Printf("Unable to open overlay png: %s.png", overlay.Name)
 				return err
 			}
 
@@ -795,7 +795,7 @@ func (jw *JsonWed) importImages() error {
 		for _, stencil := range overlay.Stencils {
 			f, err := os.Open(stencil + ".png")
 			if err != nil {
-				log.Printf("Unable to open stencil png: " + stencil + ".png")
+				log.Printf("Unable to open stencil png: %s.png", stencil)
 				return err
 			}
 
@@ -829,7 +829,7 @@ func (jw *JsonWed) importImages() error {
 
 	f, err := os.Open(jw.Overlays[0].Name + "c.png")
 	if err != nil && !os.IsNotExist(err) {
-		log.Printf("Unable to open closed png:" + jw.Overlays[0].Name + "c.png")
+		log.Printf("Unable to open closed png: %sc.png", jw.Overlays[0].Name)
 		return err
 	}
 

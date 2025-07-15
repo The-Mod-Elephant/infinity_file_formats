@@ -1,0 +1,28 @@
+name: tag
+on:
+  push:
+    tags:
+    - "*"
+jobs:
+  create-release:
+    name: Create Release
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3.0.2
+        with:
+          fetch-depth: 0
+          set-safe-directory: true
+      - name: Generate a changelog
+        uses: orhun/git-cliff-action@v3
+        id: git-cliff
+        with:
+          config: cliff.toml
+          args: --verbose --latest
+        env:
+          OUTPUT: changelog.md
+      - name: Create Release
+        id: create_release
+        uses: ncipollo/release-action@v1.14.0
+        with:
+          bodyFile: ./changelog.md
