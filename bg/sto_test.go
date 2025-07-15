@@ -9,11 +9,11 @@ import (
 )
 
 var (
-	itmFixtures = filepath.Join(filepath.Dir(b), "../fixtures", "itm")
+	stoFixtures = filepath.Join(filepath.Dir(b), "../fixtures", "sto")
 )
 
-func TestItem(t *testing.T) {
-	err := filepath.WalkDir(itmFixtures,
+func TestStore(t *testing.T) {
+	err := filepath.WalkDir(stoFixtures,
 		func(path string, d fs.DirEntry, err error) error {
 			if d.IsDir() {
 				return nil
@@ -25,16 +25,16 @@ func TestItem(t *testing.T) {
 			if err != nil {
 				return err
 			}
-			itm, err := OpenITM(file)
+			itm, err := OpenSTO(file)
 			if err != nil {
 				return err
 			}
 			if itm == nil {
-				return fmt.Errorf("Parsed item is nil")
+				return fmt.Errorf("Parsed store is nil")
 			}
 			return nil
 		})
 	if err != nil {
-		t.Fatalf("Failed to parse Items files, %+v", err)
+		t.Fatalf("Failed to parse store files, %+v", err)
 	}
 }
