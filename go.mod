@@ -1,6 +1,6 @@
-module github.com/dark0dave/infinity_file_formats
+module github.com/The-Mod-Elephant/infinity_file_formats
 
-go 1.23
+go 1.24
 
 require (
 	github.com/ajstarks/svgo v0.0.0-20211024235047-1546f124cd8b
