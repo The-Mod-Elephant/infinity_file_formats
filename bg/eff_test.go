@@ -30,7 +30,7 @@ func TestEffect(t *testing.T) {
 				return err
 			}
 			if effv1 == nil && effv2 == nil {
-				return fmt.Errorf("Effects nil failed")
+				return fmt.Errorf("Parsed effect is nil")
 			}
 			return nil
 		})
