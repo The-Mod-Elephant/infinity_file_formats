@@ -15,14 +15,16 @@ import (
 )
 
 type bifMiniHeader struct {
-	Signature, Version [4]byte
+	Signature Signature
+	Version   Version
 }
 
 type bifHeader struct {
-	Signature, Version [4]byte
-	VarResCount        uint32
-	FixedResCount      uint32
-	TableOffset        uint32
+	Signature     Signature
+	Version       Version
+	VarResCount   uint32
+	FixedResCount uint32
+	TableOffset   uint32
 }
 
 type bifVarEntry struct {

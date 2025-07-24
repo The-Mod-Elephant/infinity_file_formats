@@ -11,7 +11,8 @@ import (
 )
 
 type wedHeader struct {
-	Signature, Version  [4]byte
+	Signature           Signature
+	Version             Version
 	OverlayCount        uint32
 	DoorCount           uint32
 	OverlayOffset       uint32

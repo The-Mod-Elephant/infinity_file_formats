@@ -9,26 +9,28 @@ import (
 )
 
 type effHeader struct {
-	Signature, Version [4]byte
+	Signature Signature
+	Version   Version
 }
 
 type EffEffect struct {
-	Signature, Version [4]byte
-	EffectID           uint32
-	TargetType         uint32
-	SpellLevel         uint32
-	EffectAmount       int32
-	DWFlags            uint32
-	DurationType       uint32
-	Duration           uint32
-	ProbabilityUpper   uint16
-	ProbabilityLower   uint16
-	Res                [8]byte
-	NumDice            uint32
-	DiceSize           uint32
-	SavingThrow        uint32
-	SaveMod            int32
-	Special            uint32
+	Signature        Signature
+	Version          Version
+	EffectID         uint32
+	TargetType       uint32
+	SpellLevel       uint32
+	EffectAmount     int32
+	DWFlags          uint32
+	DurationType     uint32
+	Duration         uint32
+	ProbabilityUpper uint16
+	ProbabilityLower uint16
+	Res              [8]byte
+	NumDice          uint32
+	DiceSize         uint32
+	SavingThrow      uint32
+	SaveMod          int32
+	Special          uint32
 
 	School   uint32
 	Unknown  uint32

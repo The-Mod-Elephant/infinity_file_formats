@@ -9,7 +9,8 @@ import (
 )
 
 type dlgHeader struct {
-	Signature, Version      [4]byte
+	Signature               Signature
+	Version                 Version
 	StateCount              uint32
 	StateOffset             uint32
 	TransitionCount         uint32

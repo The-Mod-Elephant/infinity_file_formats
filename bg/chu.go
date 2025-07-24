@@ -16,10 +16,11 @@ import (
 )
 
 type chuHeader struct {
-	Signature, Version [4]byte
-	PanelCount         uint32
-	ControlOffset      uint32
-	PanelOffset        uint32
+	Signature     Signature
+	Version       Version
+	PanelCount    uint32
+	ControlOffset uint32
+	PanelOffset   uint32
 }
 
 type chuPanel struct {
