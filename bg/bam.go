@@ -1012,7 +1012,7 @@ func (bam *Bam) MakeSpriteSheet(imgWriter io.Writer, jsonWriter io.Writer) {
 	size := image.Point{0, 0}
 	maxY := 0
 
-	jsonData := fmt.Sprintf("{\"frames\": [\n")
+	jsonData := "{\"frames\": [\n"
 
 	numFramesX := int(math.Sqrt(float64(len(bam.Frames))))
 	seqSize := image.Point{0, 0}
@@ -1064,13 +1064,13 @@ func (bam *Bam) MakeSpriteSheet(imgWriter io.Writer, jsonWriter io.Writer) {
 			x = 1
 		}
 		if idx != lastFrame {
-			jsonData += fmt.Sprintf(",\n")
+			jsonData += ",\n"
 		} else {
-			jsonData += fmt.Sprintf("\n")
+			jsonData += "\n"
 		}
 	}
 	i.Palette[0] = color.RGBA{0, 0, 0, 0}
-	jsonData += fmt.Sprintf("]}\n")
+	jsonData += "]}\n"
 	jsonWriter.Write([]byte(jsonData))
 	png.Encode(imgWriter, i)
 }

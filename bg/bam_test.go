@@ -10,7 +10,7 @@ func TestRle(t *testing.T) {
 	expected := []byte{0, 7, 1, 2, 3, 0, 4, 4, 5, 6, 0, 1}
 
 	out := rleBam(in, 0)
-	if bytes.Compare(out, expected) != 0 {
+	if !bytes.Equal(out, expected) {
 		t.Errorf("rleBam %q != %q", expected, out)
 	}
 }

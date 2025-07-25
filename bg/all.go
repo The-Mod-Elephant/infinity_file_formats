@@ -105,6 +105,8 @@ func (r Resref) String() string {
 	return strings.Split(string(r[0:]), "\x00")[0]
 }
 
+type strref uint32
+
 func parseArray[A any](r io.ReadSeeker, count, start uint32) ([]A, error) {
 	out := make([]A, count)
 	if _, err := r.Seek(int64(start), io.SeekStart); err != nil {

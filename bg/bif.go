@@ -43,7 +43,7 @@ type bifFixedEntry struct {
 }
 
 type BIF struct {
-	Header          bifHeader
+	bifHeader
 	VariableEntries []bifVarEntry
 	FixedEntries    []bifFixedEntry
 	r               io.ReadSeeker
@@ -60,13 +60,13 @@ func (bif *BIF) ReadFile(resourceId uint32) ([]byte, error) {
 	for _, varRes := range bif.VariableEntries {
 		if varRes.GetResourceId() == resourceId&0x3fff {
 			out := make([]byte, varRes.Size)
-			bif.r.Seek(int64(varRes.Offset), os.SEEK_SET)
+			bif.r.Seek(int64(varRes.Offset), io.SeekStart)
 			nBytes, err := io.ReadAtLeast(bif.r, out, int(varRes.Size))
 			if err != nil {
 				return nil, err
 			}
 			if nBytes != int(varRes.Size) {
-				return nil, errors.New("Bytes read did not match size")
+				return nil, errors.New("bytes read did not match size")
 			}
 			return out, nil
 		}
@@ -77,7 +77,7 @@ func (bif *BIF) ReadFile(resourceId uint32) ([]byte, error) {
 }
 
 func (bif *BIF) Print() {
-	log.Printf("Header: %+v\n", bif.Header)
+	log.Printf("Header: %+v\n", bif.bifHeader)
 	for _, varRes := range bif.VariableEntries {
 		log.Printf("\tRes: %+v\n", varRes)
 	}
@@ -100,27 +100,27 @@ func OpenBif(r io.ReadSeeker) (*BIF, error) {
 	strVer := string(header.Version[0:])
 	// Stock biff
 	if strSig == "BIFF" && strVer == "V1  " {
-		r.Seek(0, os.SEEK_SET)
+		r.Seek(0, io.SeekStart)
 
-		err := binary.Read(r, binary.LittleEndian, &bif.Header)
+		err := binary.Read(r, binary.LittleEndian, &bif.bifHeader)
 		if err != nil {
 			return nil, err
 		}
-		r.Seek(int64(bif.Header.TableOffset), os.SEEK_SET)
-		bif.VariableEntries = make([]bifVarEntry, bif.Header.VarResCount)
+		r.Seek(int64(bif.TableOffset), io.SeekStart)
+		bif.VariableEntries = make([]bifVarEntry, bif.VarResCount)
 		err = binary.Read(r, binary.LittleEndian, &bif.VariableEntries)
 		if err != nil {
 			return nil, err
 		}
 
-		bif.FixedEntries = make([]bifFixedEntry, bif.Header.FixedResCount)
+		bif.FixedEntries = make([]bifFixedEntry, bif.FixedResCount)
 		err = binary.Read(r, binary.LittleEndian, &bif.FixedEntries)
 		if err != nil {
 			return nil, err
 		}
 		return bif, nil
 	} else if strSig == "BIF " && strVer == "V1.0" {
-		r.Seek(0x008, os.SEEK_SET)
+		r.Seek(0x008, io.SeekStart)
 		filenamelength := uint32(0)
 		err := binary.Read(r, binary.LittleEndian, &filenamelength)
 		if err != nil {
@@ -132,7 +132,7 @@ func OpenBif(r io.ReadSeeker) (*BIF, error) {
 			return nil, err
 		}
 		uncompressedDataLength := uint32(0)
-		r.Seek(int64(0x0010+filenamelength), os.SEEK_SET)
+		r.Seek(int64(0x0010+filenamelength), io.SeekStart)
 		err = binary.Read(r, binary.LittleEndian, &uncompressedDataLength)
 		if err != nil {
 			return nil, err
@@ -150,8 +150,7 @@ func OpenBif(r io.ReadSeeker) (*BIF, error) {
 	} else if strSig == "BIFC" && strVer == "V1.0" {
 
 	} else if strSig == "BIFL" && strVer == "V1.0" {
-		return nil, errors.New("Already a BIFL")
-
+		return nil, errors.New("already a BIFL")
 	}
 	return bif, nil
 }
@@ -175,12 +174,12 @@ func RepackageBiff(keyFile io.ReadSeeker, bifIn io.ReadSeeker, filesPath string,
 
 	bifName := path.Base(bifOutPath)
 
-	outOffset := binary.Size(bif.Header)
+	outOffset := binary.Size(bif.bifHeader)
 	dataOffset := uint32(outOffset + binary.Size(bif.VariableEntries) + binary.Size(bif.FixedEntries))
 	biffId := key.GetBifId(bifName)
 
-	bif.Header.TableOffset = uint32(outOffset)
-	err = binary.Write(bifOut, binary.LittleEndian, bif.Header)
+	bif.TableOffset = uint32(outOffset)
+	err = binary.Write(bifOut, binary.LittleEndian, bif.bifHeader)
 	if err != nil {
 		return err
 	}
@@ -195,7 +194,7 @@ func RepackageBiff(keyFile io.ReadSeeker, bifIn io.ReadSeeker, filesPath string,
 		if fileInfo, err := os.Stat(filePath); os.IsNotExist(err) {
 			fmt.Printf("No replacement found for: %s\n", res)
 			dataIn = make([]byte, entry.Size)
-			bifIn.Seek(int64(entry.Offset), os.SEEK_SET)
+			bifIn.Seek(int64(entry.Offset), io.SeekStart)
 			bytesRead, err := io.ReadAtLeast(bifIn, dataIn, len(dataIn))
 			if err != nil {
 				return err
@@ -224,10 +223,10 @@ func RepackageBiff(keyFile io.ReadSeeker, bifIn io.ReadSeeker, filesPath string,
 			}
 		}
 
-		bifOut.Seek(int64(outOffset), os.SEEK_SET)
+		bifOut.Seek(int64(outOffset), io.SeekStart)
 		entry.Offset = dataOffset
 		binary.Write(bifOut, binary.LittleEndian, entry)
-		bifOut.Seek(int64(dataOffset), os.SEEK_SET)
+		bifOut.Seek(int64(dataOffset), io.SeekStart)
 		binary.Write(bifOut, binary.LittleEndian, dataIn)
 
 		dataOffset += entry.Size
@@ -236,13 +235,13 @@ func RepackageBiff(keyFile io.ReadSeeker, bifIn io.ReadSeeker, filesPath string,
 	for _, entry := range bif.FixedEntries {
 		b := make([]byte, entry.Size*entry.Number)
 
-		bifIn.Seek(int64(entry.Offset), os.SEEK_SET)
+		bifIn.Seek(int64(entry.Offset), io.SeekStart)
 		io.ReadAtLeast(bifIn, b, len(b))
 
-		bifOut.Seek(int64(outOffset), os.SEEK_SET)
+		bifOut.Seek(int64(outOffset), io.SeekStart)
 		entry.Offset = dataOffset
 		binary.Write(bifOut, binary.LittleEndian, entry)
-		bifOut.Seek(int64(dataOffset), os.SEEK_SET)
+		bifOut.Seek(int64(dataOffset), io.SeekStart)
 		bifOut.Write(b)
 		outOffset += binary.Size(bif.FixedEntries[0])
 		dataOffset += uint32(len(b))
@@ -252,13 +251,16 @@ func RepackageBiff(keyFile io.ReadSeeker, bifIn io.ReadSeeker, filesPath string,
 }
 
 func ConvertToBIFL(r io.ReadSeeker, w io.WriteSeeker) error {
-	r.Seek(0, os.SEEK_SET)
-	w.Seek(0, os.SEEK_SET)
+	r.Seek(0, io.SeekStart)
+	w.Seek(0, io.SeekStart)
 	bif, err := OpenBif(r)
+	if err != nil {
+		return err
+	}
 
-	bif.Header.Signature = [4]byte{'B', 'I', 'F', 'L'}
-	bif.Header.Version = [4]byte{'V', '1', '.', '0'}
-	err = binary.Write(w, binary.LittleEndian, bif.Header)
+	bif.Signature = [4]byte{'B', 'I', 'F', 'L'}
+	bif.Version = [4]byte{'V', '1', '.', '0'}
+	err = binary.Write(w, binary.LittleEndian, bif.bifHeader)
 	if err != nil {
 		return err
 	}
@@ -270,22 +272,22 @@ func ConvertToBIFL(r io.ReadSeeker, w io.WriteSeeker) error {
 	if err != nil {
 		return err
 	}
-	outOffset := binary.Size(bif.Header)
+	outOffset := binary.Size(bif.bifHeader)
 	dataOffset := uint32(outOffset + binary.Size(bif.VariableEntries) + binary.Size(bif.FixedEntries))
 	for _, entry := range bif.VariableEntries {
 		dataIn := make([]byte, entry.Size)
 		var lzmaOut bytes.Buffer
 		out, _ := lzma.NewWriter(&lzmaOut)
 
-		r.Seek(int64(entry.Offset), os.SEEK_SET)
+		r.Seek(int64(entry.Offset), io.SeekStart)
 		io.ReadAtLeast(r, dataIn, len(dataIn))
 		out.Write(dataIn)
 		out.Close()
 
-		w.Seek(int64(outOffset), os.SEEK_SET)
+		w.Seek(int64(outOffset), io.SeekStart)
 		entry.Offset = dataOffset
 		binary.Write(w, binary.LittleEndian, entry)
-		w.Seek(int64(dataOffset), os.SEEK_SET)
+		w.Seek(int64(dataOffset), io.SeekStart)
 		compressedSize := uint32(lzmaOut.Len())
 		if compressedSize < entry.Size {
 			binary.Write(w, binary.LittleEndian, compressedSize)
@@ -302,15 +304,14 @@ func ConvertToBIFL(r io.ReadSeeker, w io.WriteSeeker) error {
 	}
 	for _, entry := range bif.FixedEntries {
 		b := make([]byte, entry.Size*entry.Number)
-		//out := lzma.NewWriter(&b)
 
-		r.Seek(int64(entry.Offset), os.SEEK_SET)
+		r.Seek(int64(entry.Offset), io.SeekStart)
 		io.ReadAtLeast(r, b, len(b))
 
-		w.Seek(int64(outOffset), os.SEEK_SET)
+		w.Seek(int64(outOffset), io.SeekStart)
 		entry.Offset = dataOffset
 		binary.Write(w, binary.LittleEndian, entry)
-		w.Seek(int64(dataOffset), os.SEEK_SET)
+		w.Seek(int64(dataOffset), io.SeekStart)
 		w.Write(b)
 		outOffset += binary.Size(bif.FixedEntries[0])
 		dataOffset += uint32(len(b))
@@ -352,10 +353,10 @@ func MakeBiffFromDir(outputFile string, fileRoot string, files []string, biffId 
 			}
 		}
 
-		bifFile.Seek(int64(outOffset), os.SEEK_SET)
+		bifFile.Seek(int64(outOffset), io.SeekStart)
 		entry.Offset = dataOffset
 		binary.Write(bifFile, binary.LittleEndian, entry)
-		bifFile.Seek(int64(dataOffset), os.SEEK_SET)
+		bifFile.Seek(int64(dataOffset), io.SeekStart)
 		bifFile.Write(dataIn)
 		//binary.Write(bifFile, binary.LittleEndian, dataIn)
 

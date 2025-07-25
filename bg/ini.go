@@ -1,4 +1,3 @@
-// Package ini provides functions for parsing INI configuration files.
 package bg
 
 import (
