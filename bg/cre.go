@@ -8,7 +8,8 @@ import (
 )
 
 type creHeader struct {
-	Signature, Version           [4]byte
+	Signature                    Signature
+	Version                      Version
 	Name                         uint32
 	ApparentName                 uint32
 	Flags                        uint32

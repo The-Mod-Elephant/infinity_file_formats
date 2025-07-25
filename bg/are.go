@@ -7,7 +7,8 @@ import (
 )
 
 type AreaHeader struct {
-	Signature, Version   [4]byte `json:"-"`
+	Signature            Signature
+	Version              Version
 	AreaWed              Resref
 	LastSaved            uint32
 	AreaFlags            uint32

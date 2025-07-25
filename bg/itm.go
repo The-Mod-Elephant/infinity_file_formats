@@ -9,7 +9,8 @@ import (
 )
 
 type itmHeader struct {
-	Signature, Version    [4]byte
+	Signature             Signature
+	Version               Version
 	GenericName           uint32
 	IdentifiedName        uint32
 	UsedUpItemID          Resref

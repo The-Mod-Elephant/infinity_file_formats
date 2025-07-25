@@ -1,8 +1,9 @@
-{ pkgs ? import <nixpkgs> {} }:
+with import <nixpkgs> {};
 pkgs.mkShell {
   buildInputs = [
-    pkgs.git
-    pkgs.go
-    pkgs.pre-commit
+    delve
+    git
+    go
+    pre-commit
   ];
 }

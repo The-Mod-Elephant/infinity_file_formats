@@ -8,7 +8,8 @@ import (
 )
 
 type splHeader struct {
-	Signature, Version  [4]byte
+	Signature           Signature
+	Version             Version
 	GenericName         uint32
 	IdentifiedName      uint32
 	UsedUpItemID        [8]byte
@@ -61,7 +62,7 @@ type splAbility struct {
 	DamageDice      uint16
 	DamageDiceCount uint16
 	DamageDiceBonus uint16
-	DamgeType       uint16
+	DamageType      uint16
 	EffectCount     uint16
 	StartingEffect  uint16
 	MaxUsageCount   uint16

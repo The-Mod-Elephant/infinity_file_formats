@@ -1,12 +1,8 @@
 package bg
 
 import (
-	//"code.google.com/p/go-charset/charset"
-	//_ "code.google.com/p/go-charset/data"
-	//_ "code.google.com/p/go-charset/charset/iconv"
 	"encoding/binary"
 	"encoding/json"
-	"errors"
 	"fmt"
 	"io"
 	"os"
@@ -71,7 +67,7 @@ func (t *TLK) GetStringCount() int {
 
 func (t *TLK) String(stringId int) (string, error) {
 	if stringId >= len(t.entries) {
-		return "", errors.New(fmt.Sprintf("Index out of range: %d > %d", stringId, len(t.entries)))
+		return "", fmt.Errorf("Index out of range: %d > %d", stringId, len(t.entries))
 	}
 	if stringId < 0 {
 		return "", nil
@@ -110,7 +106,7 @@ func (t *TLK) AddString(stringId int, str string, sound string) {
 
 func (t *TLK) Entry(stringId int) (*tlkEntry, error) {
 	if stringId >= len(t.entries) {
-		return nil, errors.New(fmt.Sprintf("Index out of range: %d >%d", stringId, len(t.entries)))
+		return nil, fmt.Errorf("Index out of range: %d >%d", stringId, len(t.entries))
 	}
 	if stringId < 0 {
 		return nil, nil

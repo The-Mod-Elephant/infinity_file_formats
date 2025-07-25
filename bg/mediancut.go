@@ -16,20 +16,6 @@ const (
 	numDimensions = 3
 )
 
-func min(x, y int) int {
-	if x < y {
-		return x
-	}
-	return y
-}
-
-func max(x, y int) int {
-	if x > y {
-		return x
-	}
-	return y
-}
-
 type point [numDimensions]int
 
 type block struct {

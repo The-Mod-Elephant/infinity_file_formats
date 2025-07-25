@@ -60,17 +60,19 @@ type BamCycle struct {
 	FrameIndex int16
 }
 type BamHeader struct {
-	Signature, Version [4]byte
-	Frames             uint16
-	Cycles             uint8
-	CompressedColor    uint8
-	FrameOffset        uint32
-	PaletteOffset      uint32
-	FrameLutOffset     uint32
+	Signature       Signature
+	Version         Version
+	Frames          uint16
+	Cycles          uint8
+	CompressedColor uint8
+	FrameOffset     uint32
+	PaletteOffset   uint32
+	FrameLutOffset  uint32
 }
 
 type BamHeaderV2 struct {
-	Signature, Version                         [4]byte
+	Signature                                  Signature
+	Version                                    Version
 	Frames, Sequences, Quads                   uint32
 	FramesOffset, SequencesOffset, QuadsOffset uint32
 }
@@ -88,8 +90,9 @@ type BamMosaicQuad struct {
 }
 
 type BamCHeader struct {
-	Signature, Version [4]byte
-	UncompressedSize   uint32
+	Signature        Signature
+	Version          Version
+	UncompressedSize uint32
 }
 
 type decoder struct {
