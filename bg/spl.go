@@ -4,81 +4,79 @@ import (
 	"encoding/binary"
 	"encoding/json"
 	"io"
-	"os"
 )
 
 type splHeader struct {
-	Signature           Signature
-	Version             Version
-	GenericName         uint32
-	IdentifiedName      uint32
-	UsedUpItemID        [8]byte
-	ItemFlags           uint32
-	ItemType            uint16
-	NotUsableBy         uint32
-	AnimationType       [2]uint8
-	MinLevelRequired    uint8
-	School              uint8
-	MinStrRequired      uint8
-	SecondaryType       uint8
-	MinStrBonusRequired uint8
-	NotUsableBy2a       uint8
-	MinIntRequired      uint8
-	NotUsableBy2b       uint8
-	MinDexRequired      uint8
-	NotUsableBy2c       uint8
-	MinWisRequired      uint8
-	NotUsableBy2d       uint8
-	MinConRequired      uint16
-	MinChrRequired      uint16
-
-	SpellLevel            uint32
-	MaxStackable          uint16
-	ItemIcon              [8]byte
-	LoreValue             uint16
-	GroundIcon            [8]byte
-	BaseWeight            uint32
-	GenericDescription    uint32
-	IdentifiedDescription uint32
-	DescriptionPicture    [8]byte
-	Attributes            uint32
-	AbilityOffset         uint32
-	AbilityCount          uint16
-	EffectsOffset         uint32
-	CastingStartingEffect uint16
-	CastingEffectCount    uint16
+	Signature             Signature `json:"signature"`
+	Version               Version   `json:"version"`
+	GenericName           uint32    `json:"generic_name"`
+	IdentifiedName        uint32    `json:"identified_name"`
+	UsedUpItemID          Resref    `json:"used_up_item_id"`
+	ItemFlags             uint32    `json:"item_flags"`
+	ItemType              uint16    `json:"item_type"`
+	NotUsableBy           uint32    `json:"not_usable_by"`
+	AnimationType         [2]uint8  `json:"animation_type"`
+	MinLevelRequired      uint8     `json:"min_level_required"`
+	School                uint8     `json:"school"`
+	MinStrRequired        uint8     `json:"min_str_required"`
+	SecondaryType         uint8     `json:"secondary_type"`
+	MinStrBonusRequired   uint8     `json:"min_str_bonus_required"`
+	NotUsableBy2a         uint8     `json:"not_usable_by2a"`
+	MinIntRequired        uint8     `json:"min_int_required"`
+	NotUsableBy2b         uint8     `json:"not_usable_by2b"`
+	MinDexRequired        uint8     `json:"min_dex_required"`
+	NotUsableBy2c         uint8     `json:"not_usable_by2c"`
+	MinWisRequired        uint8     `json:"min_wis_required"`
+	NotUsableBy2d         uint8     `json:"not_usable_by2d"`
+	MinConRequired        uint16    `json:"min_con_required"`
+	MinChrRequired        uint16    `json:"min_chr_required"`
+	SpellLevel            uint32    `json:"spell_level"`
+	MaxStackable          uint16    `json:"max_stackable"`
+	ItemIcon              Resref    `json:"item_icon"`
+	LoreValue             uint16    `json:"lore_value"`
+	GroundIcon            Resref    `json:"ground_icon"`
+	BaseWeight            uint32    `json:"base_weight"`
+	GenericDescription    uint32    `json:"generic_description"`
+	IdentifiedDescription uint32    `json:"identified_description"`
+	DescriptionPicture    Resref    `json:"description_picture"`
+	Attributes            uint32    `json:"attributes"`
+	AbilityOffset         uint32    `json:"ability_offset"`
+	AbilityCount          uint16    `json:"ability_count"`
+	EffectsOffset         uint32    `json:"effects_offset"`
+	CastingStartingEffect uint16    `json:"casting_starting_effect"`
+	CastingEffectCount    uint16    `json:"casting_effect_count"`
 }
 
 type splAbility struct {
-	Type            uint16
-	QuickSlotType   uint16
-	QuickSlotIcon   [8]byte
-	ActionType      uint8
-	ActionCount     uint8
-	Range           uint16
-	MinCasterLevel  uint16
-	SpeedFactor     uint16
-	TimesPerDay     uint16
-	DamageDice      uint16
-	DamageDiceCount uint16
-	DamageDiceBonus uint16
-	DamageType      uint16
-	EffectCount     uint16
-	StartingEffect  uint16
-	MaxUsageCount   uint16
-	UsageFlags      uint16
-	MissileType     uint16
+	Type            uint16 `json:"type"`
+	QuickSlotType   uint16 `json:"quick_slot_type"`
+	QuickSlotIcon   Resref `json:"quick_slot_icon"`
+	ActionType      uint8  `json:"action_type"`
+	ActionCount     uint8  `json:"action_count"`
+	Range           uint16 `json:"range"`
+	MinCasterLevel  uint16 `json:"min_caster_level"`
+	SpeedFactor     uint16 `json:"speed_factor"`
+	TimesPerDay     uint16 `json:"times_per_day"`
+	DamageDice      uint16 `json:"damage_dice"`
+	DamageDiceCount uint16 `json:"damage_dice_count"`
+	DamageDiceBonus uint16 `json:"damage_dice_bonus"`
+	DamageType      uint16 `json:"damage_type"`
+	EffectCount     uint16 `json:"effect_count"`
+	StartingEffect  uint16 `json:"starting_effect"`
+	MaxUsageCount   uint16 `json:"max_usage_count"`
+	UsageFlags      uint16 `json:"usage_flags"`
+	MissileType     uint16 `json:"missile_type"`
 }
 
 type SPL struct {
-	Header    splHeader
-	Abilities []splAbility
-	Effects   []ItmEffect
-	Filename  string
+	splHeader
+	Abilities []splAbility `json:"abilities"`
+	Effects   []ItmEffect  `json:"effects"`
+	Filename  string       `json:"-"`
 }
 
 func (spl *SPL) Write(w io.Writer) error {
-	err := binary.Write(w, binary.LittleEndian, spl.Header)
+	err := binary.Write(w, binary.LittleEndian, spl.splHeader)
 	if err != nil {
 		return err
 	}
@@ -96,27 +94,23 @@ func (spl *SPL) Write(w io.Writer) error {
 func OpenSPL(r io.ReadSeeker) (*SPL, error) {
 	spl := SPL{}
 
-	err := binary.Read(r, binary.LittleEndian, &spl.Header)
+	err := binary.Read(r, binary.LittleEndian, &spl.splHeader)
 	if err != nil {
 		return nil, err
 	}
 
-	spl.Abilities = make([]splAbility, spl.Header.AbilityCount)
-	_, err = r.Seek(int64(spl.Header.AbilityOffset), os.SEEK_SET)
+	spl.Abilities, err = parseArray[splAbility](r, uint32(spl.AbilityCount), spl.AbilityOffset)
 	if err != nil {
 		return nil, err
 	}
-	err = binary.Read(r, binary.LittleEndian, &spl.Abilities)
-	if err != nil {
-		return nil, err
-	}
+
 	effectsCount := 0
 	for _, ability := range spl.Abilities {
 		effectsCount += int(ability.EffectCount)
 	}
-	effectsCount += int(spl.Header.CastingEffectCount)
+	effectsCount += int(spl.CastingEffectCount)
 	spl.Effects = make([]ItmEffect, effectsCount)
-	r.Seek(int64(spl.Header.EffectsOffset), os.SEEK_SET)
+	r.Seek(int64(spl.EffectsOffset), io.SeekStart)
 	binary.Read(r, binary.LittleEndian, &spl.Effects)
 
 	return &spl, nil

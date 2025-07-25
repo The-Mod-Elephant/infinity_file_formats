@@ -5,7 +5,6 @@ import (
 	"errors"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"log"
 	"os"
 	"path"
@@ -14,14 +13,13 @@ import (
 )
 
 type keyHeader struct {
-	Signature, Version [4]byte
-	BifCount           uint32
-	ResourceCount      uint32
-	BifOffset          uint32
-	ResourceOffset     uint32
+	Signature      Signature
+	Version        Version
+	BifCount       uint32
+	ResourceCount  uint32
+	BifOffset      uint32
+	ResourceOffset uint32
 }
-
-type KeyHeader keyHeader
 
 type keyBifEntry struct {
 	Length         uint32
@@ -42,7 +40,7 @@ type keyUniqueResource struct {
 }
 
 type KEY struct {
-	header    keyHeader
+	keyHeader
 	bifs      []keyBifEntry
 	resources []keyResourceEntry
 	r         io.ReadSeeker
@@ -116,21 +114,21 @@ func (res *keyResourceEntry) CleanName() string {
 func OpenKEY(r io.ReadSeeker, root string) (*KEY, error) {
 	key := &KEY{r: r, root: root}
 
-	r.Seek(0, os.SEEK_SET)
-	err := binary.Read(r, binary.LittleEndian, &key.header)
+	r.Seek(0, io.SeekStart)
+	err := binary.Read(r, binary.LittleEndian, &key.keyHeader)
 	if err != nil {
 		return nil, err
 	}
 
-	r.Seek(int64(key.header.BifOffset), os.SEEK_SET)
-	key.bifs = make([]keyBifEntry, key.header.BifCount)
+	r.Seek(int64(key.BifOffset), io.SeekStart)
+	key.bifs = make([]keyBifEntry, key.BifCount)
 	err = binary.Read(r, binary.LittleEndian, &key.bifs)
 	if err != nil {
 		return nil, err
 	}
 
-	r.Seek(int64(key.header.ResourceOffset), os.SEEK_SET)
-	key.resources = make([]keyResourceEntry, key.header.ResourceCount)
+	r.Seek(int64(key.ResourceOffset), io.SeekStart)
+	key.resources = make([]keyResourceEntry, key.ResourceCount)
 	err = binary.Read(r, binary.LittleEndian, &key.resources)
 	if err != nil {
 		return nil, err
@@ -157,10 +155,10 @@ func (key *KEY) GetBifId(bifPath string) int {
 
 func (key *KEY) GetBifPath(bifId uint32) (string, error) {
 	if int(bifId) > len(key.bifs) {
-		return "", errors.New("Invalid bifId")
+		return "", errors.New("invalid bifId")
 	}
 	bifEntry := key.bifs[bifId]
-	_, err := key.r.Seek(int64(bifEntry.OffsetFilename), os.SEEK_SET)
+	_, err := key.r.Seek(int64(bifEntry.OffsetFilename), io.SeekStart)
 	if err != nil {
 		return "", err
 	}
@@ -199,11 +197,11 @@ func (key *KEY) GetResourceName(biffId uint32, resourceId uint32) (string, error
 			return name, nil
 		}
 	}
-	return "", errors.New("Resource not found")
+	return "", errors.New("resource not found")
 }
 
 func (key *KEY) Print() {
-	log.Printf("Key Header:\n%+v\n", key.header)
+	log.Printf("Key Header:\n%+v\n", key.keyHeader)
 	log.Printf("Bifs:\n")
 	for _, bif := range key.bifs {
 		log.Printf("\t%+v\n", bif)
@@ -214,24 +212,27 @@ func (key *KEY) Print() {
 	}
 }
 
-func (key *KEY) Validate() {
+func (key *KEY) Validate() error {
 	for idx, bif := range key.bifs {
-		bifPath, _ := key.GetBifPath(uint32(idx))
+		bifPath, err := key.GetBifPath(uint32(idx))
+		if err != nil {
+			return err
+		}
 
 		fmt.Printf("Idx: %d Path: %s Location: %d\n", idx, bifPath, bif.FileLocation)
 	}
 	for _, resource := range key.resources {
 		bifPath, err := key.GetBifPath(resource.GetBifId())
 		if err != nil {
-			log.Fatal(err)
+			return err
 		}
 		diskPath := path.Join(key.root, bifPath)
 		_, err = os.Stat(diskPath)
 		if err != nil {
-			//fmt.Printf("Can't find bif: %s\n", diskPath)
+			return fmt.Errorf("can't find bif: %s", diskPath)
 		}
-
 	}
+	return nil
 }
 
 func (key *KEY) Explode(dir string) error {
@@ -240,7 +241,7 @@ func (key *KEY) Explode(dir string) error {
 		if err != nil {
 			return err
 		}
-		newPath := path.Clean(strings.Replace(bifPath, "\\", "/", -1))
+		newPath := path.Clean(strings.ReplaceAll(bifPath, "\\", "/"))
 		bifName := path.Base(newPath)
 		dirName := path.Join(dir, strings.Replace(bifName, ".bif", "", 1))
 		err = os.MkdirAll(dirName, 0777)
@@ -280,11 +281,11 @@ func (key *KEY) OpenFile(name string) ([]byte, error) {
 		// Attempt to open from file system
 		f, err := os.Open(filepath.Join(key.root, "override", name))
 		if err != nil {
-			return nil, fmt.Errorf("Unable to find file in key or override: %s", name)
+			return nil, fmt.Errorf("unable to find file in key or override: %s", name)
 		}
-		buf, err := ioutil.ReadAll(f)
+		buf, err := io.ReadAll(f)
 		if err != nil {
-			return nil, fmt.Errorf("Unable to read file: %s", name)
+			return nil, fmt.Errorf("unable to read file: %s", name)
 		}
 		return buf, nil
 	}

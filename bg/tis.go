@@ -17,11 +17,12 @@ import (
 )
 
 type tisHeader struct {
-	Signature, Version [4]byte
-	TileCount          uint32
-	TileLength         uint32
-	HeaderSize         uint32
-	TileSize           uint32
+	Signature  Signature
+	Version    Version
+	TileCount  uint32
+	TileLength uint32
+	HeaderSize uint32
+	TileSize   uint32
 }
 
 type Tis struct {

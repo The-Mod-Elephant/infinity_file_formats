@@ -8,13 +8,12 @@ import (
 	"os"
 )
 
-type STRREF uint32
-
 type tlkHeader struct {
-	Signature, Version [4]byte
-	LanguageID         uint16
-	StringCount        uint32
-	StringOffset       uint32
+	Signature    Signature
+	Version      Version
+	LanguageID   uint16
+	StringCount  uint32
+	StringOffset uint32
 }
 
 type tlkEntry struct {

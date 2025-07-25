@@ -4,7 +4,6 @@ import (
 	"encoding/binary"
 	"encoding/json"
 	"io"
-	"os"
 )
 
 type creHeader struct {
@@ -82,37 +81,33 @@ type creHeader struct {
 	MoraleRecoveryTime           uint16
 	MageSpecUpperWorld           uint16
 	MageSpecialization           uint16
-
-	ScriptOverride Resref
-	ScriptClass    Resref
-	ScriptRace     Resref
-	ScriptGeneral  Resref
-	ScriptDefault  Resref
-}
-
-type creOffsets struct {
-	EnemyAlly                   uint8
-	General                     uint8
-	Race                        uint8
-	Class                       uint8
-	Specifics                   uint8
-	Gender                      uint8
-	SpecialCase                 [5]uint8
-	Alignment                   uint8
-	Instance                    uint32
-	Name                        LongString
-	KnownSpellListOffset        uint32
-	KnownSpellListCount         uint32
-	MemorizationLevelListOffset uint32
-	MemorizationLevelListCount  uint32
-	MemorizationSpellListOffset uint32
-	MemorizationSpellListCount  uint32
-	EquipmentListOffset         uint32
-	ItemListOffset              uint32
-	ItemListCount               uint32
-	EffectListOffset            uint32
-	EffectListCount             uint32
-	Dialog                      Resref
+	ScriptOverride               Resref
+	ScriptClass                  Resref
+	ScriptRace                   Resref
+	ScriptGeneral                Resref
+	ScriptDefault                Resref
+	EnemyAlly                    uint8
+	General                      uint8
+	Race                         uint8
+	Class                        uint8
+	Specifics                    uint8
+	Gender                       uint8
+	SpecialCase                  [5]uint8
+	Alignment                    uint8
+	Instance                     uint32
+	DeathVariable                LongString
+	KnownSpellListOffset         uint32
+	KnownSpellListCount          uint32
+	MemorizationLevelListOffset  uint32
+	MemorizationLevelListCount   uint32
+	MemorizationSpellListOffset  uint32
+	MemorizationSpellListCount   uint32
+	EquipmentListOffset          uint32
+	ItemListOffset               uint32
+	ItemListCount                uint32
+	EffectListOffset             uint32
+	EffectListCount              uint32
+	Dialog                       Resref
 }
 
 type creKnownSpell struct {
@@ -162,8 +157,7 @@ type creEquipment struct {
 }
 
 type CRE struct {
-	Header               creHeader
-	Offsets              creOffsets
+	creHeader
 	KnownSpells          []creKnownSpell
 	MemorizedSpellLevels []creMemorizedSpellLevel
 	MemorizedSpells      []creMemorizedSpell
@@ -174,11 +168,7 @@ type CRE struct {
 }
 
 func (cre *CRE) Write(w io.Writer) error {
-	err := binary.Write(w, binary.LittleEndian, cre.Header)
-	if err != nil {
-		return err
-	}
-	err = binary.Write(w, binary.LittleEndian, cre.Offsets)
+	err := binary.Write(w, binary.LittleEndian, cre.creHeader)
 	if err != nil {
 		return err
 	}
@@ -194,12 +184,12 @@ func (cre *CRE) Write(w io.Writer) error {
 	if err != nil {
 		return err
 	}
-	if cre.Header.EffectVersion == 0 {
+	if cre.EffectVersion == 0 {
 		err = binary.Write(w, binary.LittleEndian, cre.Effects)
 		if err != nil {
 			return err
 		}
-	} else if cre.Header.EffectVersion == 1 {
+	} else if cre.EffectVersion == 1 {
 		err = binary.Write(w, binary.LittleEndian, cre.Effectsv2)
 		if err != nil {
 			return err
@@ -220,18 +210,13 @@ func (cre *CRE) Write(w io.Writer) error {
 func OpenCre(r io.ReadSeeker) (*CRE, error) {
 	cre := &CRE{}
 
-	err := binary.Read(r, binary.LittleEndian, &cre.Header)
+	err := binary.Read(r, binary.LittleEndian, &cre.creHeader)
 	if err != nil {
 		return nil, err
 	}
 
-	err = binary.Read(r, binary.LittleEndian, &cre.Offsets)
-	if err != nil {
-		return nil, err
-	}
-
-	cre.KnownSpells = make([]creKnownSpell, cre.Offsets.KnownSpellListCount)
-	_, err = r.Seek(int64(cre.Offsets.KnownSpellListOffset), os.SEEK_SET)
+	cre.KnownSpells = make([]creKnownSpell, cre.KnownSpellListCount)
+	_, err = r.Seek(int64(cre.KnownSpellListOffset), io.SeekStart)
 	if err != nil {
 		return nil, err
 	}
@@ -239,8 +224,8 @@ func OpenCre(r io.ReadSeeker) (*CRE, error) {
 	if err != nil {
 		return nil, err
 	}
-	cre.MemorizedSpellLevels = make([]creMemorizedSpellLevel, cre.Offsets.MemorizationLevelListCount)
-	_, err = r.Seek(int64(cre.Offsets.MemorizationLevelListOffset), os.SEEK_SET)
+	cre.MemorizedSpellLevels = make([]creMemorizedSpellLevel, cre.MemorizationLevelListCount)
+	_, err = r.Seek(int64(cre.MemorizationLevelListOffset), io.SeekStart)
 	if err != nil {
 		return nil, err
 	}
@@ -248,8 +233,8 @@ func OpenCre(r io.ReadSeeker) (*CRE, error) {
 	if err != nil {
 		return nil, err
 	}
-	cre.MemorizedSpells = make([]creMemorizedSpell, cre.Offsets.MemorizationSpellListCount)
-	_, err = r.Seek(int64(cre.Offsets.MemorizationSpellListOffset), os.SEEK_SET)
+	cre.MemorizedSpells = make([]creMemorizedSpell, cre.MemorizationSpellListCount)
+	_, err = r.Seek(int64(cre.MemorizationSpellListOffset), io.SeekStart)
 	if err != nil {
 		return nil, err
 	}
@@ -257,8 +242,8 @@ func OpenCre(r io.ReadSeeker) (*CRE, error) {
 	if err != nil {
 		return nil, err
 	}
-	cre.Items = make([]creItem, cre.Offsets.ItemListCount)
-	_, err = r.Seek(int64(cre.Offsets.ItemListOffset), os.SEEK_SET)
+	cre.Items = make([]creItem, cre.ItemListCount)
+	_, err = r.Seek(int64(cre.ItemListOffset), io.SeekStart)
 	if err != nil {
 		return nil, err
 	}
@@ -266,7 +251,7 @@ func OpenCre(r io.ReadSeeker) (*CRE, error) {
 	if err != nil {
 		return nil, err
 	}
-	_, err = r.Seek(int64(cre.Offsets.EquipmentListOffset), os.SEEK_SET)
+	_, err = r.Seek(int64(cre.EquipmentListOffset), io.SeekStart)
 	if err != nil {
 		return nil, err
 	}
@@ -274,9 +259,9 @@ func OpenCre(r io.ReadSeeker) (*CRE, error) {
 	if err != nil {
 		return nil, err
 	}
-	if cre.Header.EffectVersion == 0 {
-		cre.Effects = make([]ItmEffect, cre.Offsets.EffectListCount)
-		_, err = r.Seek(int64(cre.Offsets.EffectListOffset), os.SEEK_SET)
+	if cre.EffectVersion == 0 {
+		cre.Effects = make([]ItmEffect, cre.EffectListCount)
+		_, err = r.Seek(int64(cre.EffectListOffset), io.SeekStart)
 		if err != nil {
 			return nil, err
 		}
@@ -284,9 +269,9 @@ func OpenCre(r io.ReadSeeker) (*CRE, error) {
 		if err != nil {
 			return nil, err
 		}
-	} else if cre.Header.EffectVersion == 1 {
-		cre.Effectsv2 = make([]EffEffect, cre.Offsets.EffectListCount)
-		_, err = r.Seek(int64(cre.Offsets.EffectListOffset), os.SEEK_SET)
+	} else if cre.EffectVersion == 1 {
+		cre.Effectsv2 = make([]EffEffect, cre.EffectListCount)
+		_, err = r.Seek(int64(cre.EffectListOffset), io.SeekStart)
 		if err != nil {
 			return nil, err
 		}

@@ -4,7 +4,6 @@ import (
 	"encoding/binary"
 	"encoding/json"
 	"io"
-	"os"
 	"strconv"
 )
 
@@ -25,7 +24,7 @@ type dlgHeader struct {
 }
 
 type DlgState struct {
-	Stringref       uint32
+	Stringref       strref
 	TransitionIndex uint32
 	TransitionCount uint32
 	TriggerIndex    int32
@@ -47,7 +46,7 @@ type dlgOffsetLength struct {
 }
 
 type DLG struct {
-	Header             dlgHeader
+	dlgHeader
 	States             []DlgState
 	Transitions        []DlgTransition
 	StateTriggers      []string
@@ -132,13 +131,13 @@ func (dlg *DLG) PrintDot(tlk *TLK, root string) {
 func OpenDlg(r io.ReadSeeker) (*DLG, error) {
 	dlg := &DLG{}
 
-	err := binary.Read(r, binary.LittleEndian, &dlg.Header)
+	err := binary.Read(r, binary.LittleEndian, &dlg.dlgHeader)
 	if err != nil {
 		return nil, err
 	}
 
-	dlg.States = make([]DlgState, dlg.Header.StateCount)
-	_, err = r.Seek(int64(dlg.Header.StateOffset), os.SEEK_SET)
+	dlg.States = make([]DlgState, dlg.StateCount)
+	_, err = r.Seek(int64(dlg.StateOffset), io.SeekStart)
 	if err != nil {
 		return nil, err
 	}
@@ -147,8 +146,8 @@ func OpenDlg(r io.ReadSeeker) (*DLG, error) {
 		return nil, err
 	}
 
-	dlg.Transitions = make([]DlgTransition, dlg.Header.TransitionCount)
-	_, err = r.Seek(int64(dlg.Header.TransitionOffset), os.SEEK_SET)
+	dlg.Transitions = make([]DlgTransition, dlg.TransitionCount)
+	_, err = r.Seek(int64(dlg.TransitionOffset), io.SeekStart)
 	if err != nil {
 		return nil, err
 	}
@@ -157,16 +156,19 @@ func OpenDlg(r io.ReadSeeker) (*DLG, error) {
 		return nil, err
 	}
 
-	dlg.StateTriggers = make([]string, dlg.Header.StateTriggerCount)
+	dlg.StateTriggers = make([]string, dlg.StateTriggerCount)
 
 	for idx := range dlg.StateTriggers {
 		ol := dlgOffsetLength{}
-		_, err = r.Seek(int64(int(dlg.Header.StateTriggerOffset)+idx*binary.Size(ol)), os.SEEK_SET)
+		_, err = r.Seek(int64(int(dlg.StateTriggerOffset)+idx*binary.Size(ol)), io.SeekStart)
 		if err != nil {
 			return nil, err
 		}
 		err = binary.Read(r, binary.LittleEndian, &ol)
-		_, err = r.Seek(int64(ol.Offset), os.SEEK_SET)
+		if err != nil {
+			return nil, err
+		}
+		_, err = r.Seek(int64(ol.Offset), io.SeekStart)
 		if err != nil {
 			return nil, err
 		}
@@ -175,15 +177,18 @@ func OpenDlg(r io.ReadSeeker) (*DLG, error) {
 		dlg.StateTriggers[idx] = string(data[0:])
 	}
 
-	dlg.TransitionTriggers = make([]string, dlg.Header.TransitionTriggerCount)
+	dlg.TransitionTriggers = make([]string, dlg.TransitionTriggerCount)
 	for idx := range dlg.TransitionTriggers {
 		ol := dlgOffsetLength{}
-		_, err = r.Seek(int64(int(dlg.Header.TransitionTriggerOffset)+idx*binary.Size(ol)), os.SEEK_SET)
+		_, err = r.Seek(int64(int(dlg.TransitionTriggerOffset)+idx*binary.Size(ol)), io.SeekStart)
 		if err != nil {
 			return nil, err
 		}
 		err = binary.Read(r, binary.LittleEndian, &ol)
-		_, err = r.Seek(int64(ol.Offset), os.SEEK_SET)
+		if err != nil {
+			return nil, err
+		}
+		_, err = r.Seek(int64(ol.Offset), io.SeekStart)
 		if err != nil {
 			return nil, err
 		}
@@ -191,15 +196,18 @@ func OpenDlg(r io.ReadSeeker) (*DLG, error) {
 		r.Read(data)
 		dlg.TransitionTriggers[idx] = string(data[0:])
 	}
-	dlg.Actions = make([]string, dlg.Header.ActionCount)
+	dlg.Actions = make([]string, dlg.ActionCount)
 	for idx := range dlg.Actions {
 		ol := dlgOffsetLength{}
-		_, err = r.Seek(int64(int(dlg.Header.ActionOffset)+idx*binary.Size(ol)), os.SEEK_SET)
+		_, err = r.Seek(int64(int(dlg.ActionOffset)+idx*binary.Size(ol)), io.SeekStart)
 		if err != nil {
 			return nil, err
 		}
 		err = binary.Read(r, binary.LittleEndian, &ol)
-		_, err = r.Seek(int64(ol.Offset), os.SEEK_SET)
+		if err != nil {
+			return nil, err
+		}
+		_, err = r.Seek(int64(ol.Offset), io.SeekStart)
 		if err != nil {
 			return nil, err
 		}
@@ -241,7 +249,7 @@ type dlgGraph struct {
 	Nodes []dlgNode
 }
 
-func fetch(tlk *TLK, id uint32) string {
+func fetch(tlk *TLK, id strref) string {
 	str, _ := tlk.String(int(id))
 	return str
 }
