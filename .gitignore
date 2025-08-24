@@ -27,6 +27,8 @@ go.work.sum
 
 # Our files
 weidu*
+!weidu.log
+!weidu.log.*
 infinity_file_format*
 
 # Secrets

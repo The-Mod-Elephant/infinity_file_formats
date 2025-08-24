@@ -1,0 +1,36 @@
+{
+  "comments": [
+    "// Log of Currently Installed WeiDU Mods",
+    "// The top of the file is the 'oldest' mod",
+    "// ~TP2_File~ #language_number #component_number // [Subcomponent Name -> ] Component Name [ : Version]"
+  ],
+  "components": [
+    {
+      "tp_file": "TEST.TP2",
+      "name": "TEST_MOD_NAME_1",
+      "lang": "0",
+      "component": "0",
+      "component_name": "test mod one",
+      "sub_component": "",
+      "version": ""
+    },
+    {
+      "tp_file": "END.TP2",
+      "name": "TEST_MOD_NAME_2",
+      "lang": "0",
+      "component": "0",
+      "component_name": "test mod with subcomponent information",
+      "sub_component": "Standard installation",
+      "version": ""
+    },
+    {
+      "tp_file": "TWEAKS.TP2",
+      "name": "TEST_MOD_NAME_4",
+      "lang": "0",
+      "component": "3346",
+      "component_name": "test mod with both subcomponent information and version",
+      "sub_component": "Casting speed only",
+      "version": "v16"
+    }
+  ]
+}
