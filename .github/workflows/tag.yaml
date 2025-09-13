@@ -9,7 +9,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v3.0.2
+        uses: actions/checkout@v5
         with:
           fetch-depth: 0
           set-safe-directory: true
@@ -23,6 +23,6 @@ jobs:
           OUTPUT: changelog.md
       - name: Create Release
         id: create_release
-        uses: ncipollo/release-action@v1.14.0
+        uses: ncipollo/release-action@v1.20.0
         with:
           bodyFile: ./changelog.md
