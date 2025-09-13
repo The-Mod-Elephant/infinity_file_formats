@@ -4,382 +4,385 @@ import (
 	"encoding/binary"
 	"encoding/json"
 	"io"
+	"maps"
+	"slices"
 )
 
-type areaHeader struct {
-	Signature               Signature
-	Version                 Version
-	AreaWed                 Resref
-	LastSaved               uint32
-	AreaFlags               uint32
-	AreaNorth               Resref
-	AreaNorthFlags          uint32
-	AreaEast                Resref
-	AreaEastFlags           uint32
-	AreaSouth               Resref
-	AreaSouthFlags          uint32
-	AreaWest                Resref
-	AreaWestFlags           uint32
-	Areatype                uint16
-	Rainprobability         uint16
-	SnowProability          uint16
-	FogProbability          uint16
-	LightningProbability    uint16
-	WindSpeed               uint16
-	ActorsOffset            uint32
-	ActorsCount             uint16
-	RegionCount             uint16
-	RegionOffset            uint32
-	SpawnPointOffset        uint32
-	SpawnPointCount         uint32
-	EntranceOffset          uint32
-	EntranceCount           uint32
-	ContainerOffset         uint32
-	ContainerCount          uint16
-	ItemCount               uint16
-	ItemOffset              uint32
-	VertexOffset            uint32
-	VertexCount             uint16
-	AmbientCount            uint16
-	AmbientOffset           uint32
-	VariableOffset          uint32
-	VariableCount           uint16
-	TiledObjectFlagCount    uint16
-	TiledObjectFlagOffset   uint32
-	Script                  Resref
-	ExploredSize            uint32
-	ExploredOffset          uint32
-	DoorsCount              uint32
-	DoorsOffset             uint32
-	AnimationCount          uint32
-	AnimationOffset         uint32
-	TiledObjectCount        uint32
-	TiledObjectOffset       uint32
-	SongEntriesOffset       uint32
-	RestInterruptionsOffset uint32
-	AutomapOffset           uint32
-	AutomapCount            uint32
-	ProjectileTrapsOffset   uint32
-	ProjectileTrapsCount    uint32
-	RestMovieDay            Resref
-	RestMovieNight          Resref
-	Unknown                 [56]byte
+type AreaHeader struct {
+	Signature               Signature `json:"signature"`
+	Version                 Version   `json:"version"`
+	AreaWed                 Resref    `json:"area_wed"`
+	LastSaved               uint32    `json:"last_saved"`
+	AreaFlags               uint32    `json:"area_flags"`
+	AreaNorth               Resref    `json:"area_north"`
+	AreaNorthFlags          uint32    `json:"area_north_flags"`
+	AreaEast                Resref    `json:"area_east"`
+	AreaEastFlags           uint32    `json:"area_east_flags"`
+	AreaSouth               Resref    `json:"area_south"`
+	AreaSouthFlags          uint32    `json:"area_south_flags"`
+	AreaWest                Resref    `json:"area_west"`
+	AreaWestFlags           uint32    `json:"area_west_flags"`
+	Areatype                uint16    `json:"areatype"`
+	Rainprobability         uint16    `json:"rainprobability"`
+	SnowProability          uint16    `json:"snow_proability"`
+	FogProbability          uint16    `json:"fog_probability"`
+	LightningProbability    uint16    `json:"lightning_probability"`
+	WindSpeed               uint16    `json:"wind_speed"`
+	ActorsOffset            uint32    `json:"actors_offset"`
+	ActorsCount             uint16    `json:"actors_count"`
+	RegionCount             uint16    `json:"region_count"`
+	RegionOffset            uint32    `json:"region_offset"`
+	SpawnPointOffset        uint32    `json:"spawn_point_offset"`
+	SpawnPointCount         uint32    `json:"spawn_point_count"`
+	EntranceOffset          uint32    `json:"entrance_offset"`
+	EntranceCount           uint32    `json:"entrance_count"`
+	ContainerOffset         uint32    `json:"container_offset"`
+	ContainerCount          uint16    `json:"container_count"`
+	ItemCount               uint16    `json:"item_count"`
+	ItemOffset              uint32    `json:"item_offset"`
+	VertexOffset            uint32    `json:"vertex_offset"`
+	VertexCount             uint16    `json:"vertex_count"`
+	AmbientCount            uint16    `json:"ambient_count"`
+	AmbientOffset           uint32    `json:"ambient_offset"`
+	VariableOffset          uint32    `json:"variable_offset"`
+	VariableCount           uint16    `json:"variable_count"`
+	TiledObjectFlagCount    uint16    `json:"tiled_object_flag_count"`
+	TiledObjectFlagOffset   uint32    `json:"tiled_object_flag_offset"`
+	Script                  Resref    `json:"script"`
+	ExploredSize            uint32    `json:"explored_size"`
+	ExploredOffset          uint32    `json:"explored_offset"`
+	DoorsCount              uint32    `json:"doors_count"`
+	DoorsOffset             uint32    `json:"doors_offset"`
+	AnimationCount          uint32    `json:"animation_count"`
+	AnimationOffset         uint32    `json:"animation_offset"`
+	TiledObjectCount        uint32    `json:"tiled_object_count"`
+	TiledObjectOffset       uint32    `json:"tiled_object_offset"`
+	SongEntriesOffset       uint32    `json:"song_entries_offset"`
+	RestInterruptionsOffset uint32    `json:"rest_interruptions_offset"`
+	AutomapOffset           uint32    `json:"automap_offset"`
+	AutomapCount            uint32    `json:"automap_count"`
+	ProjectileTrapsOffset   uint32    `json:"projectile_traps_offset"`
+	ProjectileTrapsCount    uint32    `json:"projectile_traps_count"`
+	RestMovieDay            Resref    `json:"rest_movie_day"`
+	RestMovieNight          Resref    `json:"rest_movie_night"`
+	Unknown                 [56]byte  `json:"unknown"`
 }
 
 type AreaActor struct {
-	Name                LongString
-	CurrentX            uint16
-	CurrentY            uint16
-	DestX               uint16
-	DestY               uint16
-	Flags               uint32
-	Type                uint16
-	FirstResSlot        byte
-	AlignByte           byte
-	AnimationType       uint32
-	Facing              uint16
-	AlignWord           uint16
-	ExpirationTime      uint32
-	HuntingRange        uint16
-	FollowRange         uint16
-	TimeOfDayVisible    uint32
-	NumberTimesTalkedTo uint32
-	Dialog              Resref
-	OverrideScript      Resref
-	GeneralScript       Resref
-	ClassScript         Resref
-	RaceScript          Resref
-	DefaultScript       Resref
-	SpecificScript      Resref
-	CreatureData        Resref
-	CreatureOffset      uint32
-	CreatureSize        uint32
-	Unused              [32]uint32
+	Name                LongString `json:"name"`
+	CurrentX            uint16     `json:"current_x"`
+	CurrentY            uint16     `json:"current_y"`
+	DestX               uint16     `json:"dest_x"`
+	DestY               uint16     `json:"dest_y"`
+	Flags               uint32     `json:"flags"`
+	Type                uint16     `json:"type"`
+	FirstResSlot        byte       `json:"first_res_slot"`
+	AlignByte           byte       `json:"align_byte"`
+	AnimationType       uint32     `json:"animation_type"`
+	Facing              uint16     `json:"facing"`
+	AlignWord           uint16     `json:"align_word"`
+	ExpirationTime      uint32     `json:"expiration_time"`
+	HuntingRange        uint16     `json:"hunting_range"`
+	FollowRange         uint16     `json:"follow_range"`
+	TimeOfDayVisible    uint32     `json:"time_of_day_visible"`
+	NumberTimesTalkedTo uint32     `json:"number_times_talked_to"`
+	Dialog              Resref     `json:"dialog"`
+	OverrideScript      Resref     `json:"override_script"`
+	GeneralScript       Resref     `json:"general_script"`
+	ClassScript         Resref     `json:"class_script"`
+	RaceScript          Resref     `json:"race_script"`
+	DefaultScript       Resref     `json:"default_script"`
+	SpecificScript      Resref     `json:"specific_script"`
+	CreatureData        Resref     `json:"creature_data"`
+	CreatureOffset      uint32     `json:"creature_offset"`
+	CreatureSize        uint32     `json:"creature_size"`
+	Unused              [32]uint32 `json:"unused"`
 }
 
 type AreaRegion struct {
-	Name                    LongString
-	Type                    uint16
-	BoundingLeft            uint16
-	BoundingTop             uint16
-	BoundingRight           uint16
-	BoundingBottom          uint16
-	VertexCount             uint16
-	VertexOffset            uint32
-	TriggerValue            uint32
-	CursorType              uint32
-	Destination             Resref
-	EntranceName            LongString
-	Flags                   uint32
-	InformationText         uint32
-	TrapDetectionDifficulty uint16
-	TrapDisarmingDifficulty uint16
-	TrapActivated           uint16
-	TrapDetected            uint16
-	TrapOriginX             uint16
-	TrapOriginY             uint16
-	KeyItem                 Resref
-	RegionScript            Resref
-	TransitionWalkToX       uint16
-	TransitionWalkToY       uint16
-	Unused                  [15]uint32
+	Name                    LongString `json:"name"`
+	Type                    uint16     `json:"type"`
+	BoundingLeft            uint16     `json:"bounding_left"`
+	BoundingTop             uint16     `json:"bounding_top"`
+	BoundingRight           uint16     `json:"bounding_right"`
+	BoundingBottom          uint16     `json:"bounding_bottom"`
+	VertexCount             uint16     `json:"vertex_count"`
+	VertexOffset            uint32     `json:"vertex_offset"`
+	TriggerValue            uint32     `json:"trigger_value"`
+	CursorType              uint32     `json:"cursor_type"`
+	Destination             Resref     `json:"destination"`
+	EntranceName            LongString `json:"entrance_name"`
+	Flags                   uint32     `json:"flags"`
+	InformationText         uint32     `json:"information_text"`
+	TrapDetectionDifficulty uint16     `json:"trap_detection_difficulty"`
+	TrapDisarmingDifficulty uint16     `json:"trap_disarming_difficulty"`
+	TrapActivated           uint16     `json:"trap_activated"`
+	TrapDetected            uint16     `json:"trap_detected"`
+	TrapOriginX             uint16     `json:"trap_origin_x"`
+	TrapOriginY             uint16     `json:"trap_origin_y"`
+	KeyItem                 Resref     `json:"key_item"`
+	RegionScript            Resref     `json:"region_script"`
+	TransitionWalkToX       uint16     `json:"transition_walk_to_x"`
+	TransitionWalkToY       uint16     `json:"transition_walk_to_y"`
+	Unused                  [15]uint32 `json:"unused"`
 }
 
 type AreaSpawnPoint struct {
-	Name                LongString
-	CoordX              uint16
-	CoordY              uint16
-	RandomCreatures     [10]Resref
-	RandomCreatureCount uint16
-	Difficulty          uint16
-	SpawnRate           uint16
-	Flags               uint16
-	LifeSpan            uint32
-	HuntingRange        uint32
-	FollowRange         uint32
-	MaxTypeNum          uint32
-	Activated           uint16
-	TimeOfDay           uint32
-	ProbabilityDay      uint16
-	ProbabilityNight    uint16
-	Unused              [14]uint32
+	Name                LongString `json:"name"`
+	CoordX              uint16     `json:"coord_x"`
+	CoordY              uint16     `json:"coord_y"`
+	RandomCreatures     [10]Resref `json:"random_creatures"`
+	RandomCreatureCount uint16     `json:"random_creature_count"`
+	Difficulty          uint16     `json:"difficulty"`
+	SpawnRate           uint16     `json:"spawn_rate"`
+	Flags               uint16     `json:"flags"`
+	LifeSpan            uint32     `json:"life_span"`
+	HuntingRange        uint32     `json:"hunting_range"`
+	FollowRange         uint32     `json:"follow_range"`
+	MaxTypeNum          uint32     `json:"max_type_num"`
+	Activated           uint16     `json:"activated"`
+	TimeOfDay           uint32     `json:"time_of_day"`
+	ProbabilityDay      uint16     `json:"probability_day"`
+	ProbabilityNight    uint16     `json:"probability_night"`
+	Unused              [14]uint32 `json:"unused"`
 }
 
 type AreaEntrance struct {
-	Name        LongString
-	CoordX      uint16
-	CoordY      uint16
-	Orientation uint16
-	Unused      [66]byte
+	Name        LongString `json:"name"`
+	CoordX      uint16     `json:"coord_x"`
+	CoordY      uint16     `json:"coord_y"`
+	Orientation uint16     `json:"orientation"`
+	Unused      [66]byte   `json:"unused"`
 }
 
 type AreaContainer struct {
-	Name                    LongString
-	CoordX                  uint16
-	CoordY                  uint16
-	Type                    uint16
-	LockDifficulty          uint16
-	Flags                   uint32
-	TrapDetectionDifficulty uint16
-	TrapRemovalDifficulty   uint16
-	ContainerTrapped        uint16
-	TrapDetected            uint16
-	TrapLaunchX             uint16
-	TrapLaunchY             uint16
-	BoundingTopLeft         uint16
-	BoundingTopRight        uint16
-	BoundingBottomRight     uint16
-	BoundingBottomLeft      uint16
-	ItemOffset              uint32
-	ItemCount               uint32
-	TrapScript              Resref
-	VertexOffset            uint32
-	VertexCount             uint16
-	TriggerRange            uint16
-	OwnedBy                 LongString
-	KeyType                 Resref
-	BreakDifficulty         uint32
-	NotPickableString       uint32
-	Unused                  [14]uint32
+	Name                    LongString `json:"name"`
+	CoordX                  uint16     `json:"coord_x"`
+	CoordY                  uint16     `json:"coord_y"`
+	Type                    uint16     `json:"type"`
+	LockDifficulty          uint16     `json:"lock_difficulty"`
+	Flags                   uint32     `json:"flags"`
+	TrapDetectionDifficulty uint16     `json:"trap_detection_difficulty"`
+	TrapRemovalDifficulty   uint16     `json:"trap_removal_difficulty"`
+	ContainerTrapped        uint16     `json:"container_trapped"`
+	TrapDetected            uint16     `json:"trap_detected"`
+	TrapLaunchX             uint16     `json:"trap_launch_x"`
+	TrapLaunchY             uint16     `json:"trap_launch_y"`
+	BoundingTopLeft         uint16     `json:"bounding_top_left"`
+	BoundingTopRight        uint16     `json:"bounding_top_right"`
+	BoundingBottomRight     uint16     `json:"bounding_bottom_right"`
+	BoundingBottomLeft      uint16     `json:"bounding_bottom_left"`
+	ItemOffset              uint32     `json:"item_offset"`
+	ItemCount               uint32     `json:"item_count"`
+	TrapScript              Resref     `json:"trap_script"`
+	VertexOffset            uint32     `json:"vertex_offset"`
+	VertexCount             uint16     `json:"vertex_count"`
+	TriggerRange            uint16     `json:"trigger_range"`
+	OwnedBy                 LongString `json:"owned_by"`
+	KeyType                 Resref     `json:"key_type"`
+	BreakDifficulty         uint32     `json:"break_difficulty"`
+	NotPickableString       uint32     `json:"not_pickable_string"`
+	Unused                  [14]uint32 `json:"unused"`
 }
 
 type AreaItem struct {
-	Resource   Resref
-	Expiration uint16
-	UsageCount [3]uint16
-	Flags      uint32
+	Resource   Resref    `json:"resource"`
+	Expiration uint16    `json:"expiration"`
+	UsageCount [3]uint16 `json:"usage_count"`
+	Flags      uint32    `json:"flags"`
 }
 
 type AreaVertex struct {
-	Coordinate uint16
+	Coordinate uint16 `json:"coordinate"`
 }
 
 type AreaAmbient struct {
-	Name            LongString
-	CoordinateX     uint16
-	CoordinateY     uint16
-	Range           uint16
-	Alignment1      uint16
-	PitchVariance   uint32
-	VolumeVariance  uint16
-	Volume          uint16
-	Sounds          [10]Resref
-	SoundCount      uint16
-	Alignment2      uint16
-	Period          uint32
-	PeriodVariance  uint32
-	TimeOfDayActive uint32
-	Flags           uint32
-	Unused          [16]uint32
+	Name            LongString `json:"name"`
+	CoordinateX     uint16     `json:"coordinate_x"`
+	CoordinateY     uint16     `json:"coordinate_y"`
+	Range           uint16     `json:"range"`
+	Alignment1      uint16     `json:"alignment1"`
+	PitchVariance   uint32     `json:"pitch_variance"`
+	VolumeVariance  uint16     `json:"volume_variance"`
+	Volume          uint16     `json:"volume"`
+	Sounds          [10]Resref `json:"sounds"`
+	SoundCount      uint16     `json:"sound_count"`
+	Alignment2      uint16     `json:"alignment2"`
+	Period          uint32     `json:"period"`
+	PeriodVariance  uint32     `json:"period_variance"`
+	TimeOfDayActive uint32     `json:"time_of_day_active"`
+	Flags           uint32     `json:"flags"`
+	Unused          [16]uint32 `json:"unused"`
 }
 
 type AreaVariable struct {
-	Name       LongString
-	Type       uint16
-	ResRefType uint16
-	DWValue    uint32
-	IntValue   int32
-	FloatValue float64
-	ScriptName LongString
+	Name       LongString `json:"name"`
+	Type       uint16     `json:"type"`
+	ResRefType uint16     `json:"res_ref_type"`
+	DWValue    uint32     `json:"dw_value"`
+	IntValue   int32      `json:"int_value"`
+	FloatValue float64    `json:"float_value"`
+	ScriptName LongString `json:"script_name"`
 }
 
 type AreaDoor struct {
-	Name                    LongString
-	DoorID                  Resref
-	Flags                   uint32
-	OpenDoorVertexOffset    uint32
-	OpenDoorVertexCount     uint16
-	ClosedDoorVertexCount   uint16
-	CloseDoorVertexOffset   uint32
-	OpenBoundingLeft        uint16
-	OpenBoundingTop         uint16
-	OpenBoundingRight       uint16
-	OpenBoundingBottom      uint16
-	ClosedBoundingLeft      uint16
-	ClosedBoundingTop       uint16
-	ClosedBoundingRight     uint16
-	ClosedBoundingBottom    uint16
-	OpenBlockVertexOffset   uint32
-	OpenBlockVertexCount    uint16
-	ClosedBlockVertexCount  uint16
-	ClosedBlockVertexOffset uint32
-	HitPoints               uint16
-	ArmorClass              uint16
-	OpenSound               Resref
-	ClosedSound             Resref
-	CursorType              uint32
-	TrapDetectionDifficulty uint16
-	TrapRemovalDifficulty   uint16
-	DoorIsTrapped           uint16
-	TrapDetected            uint16
-	TrapLaunchTargetX       uint16
-	TrapLaunchTargetY       uint16
-	KeyItem                 Resref
-	DoorScript              Resref
-	DetectionDifficulty     uint32
-	LockDifficulty          uint32
-	WalkToX1                uint16
-	WalkToY1                uint16
-	WalkToX2                uint16
-	WalkToY2                uint16
-	NotPickableString       uint32
-	TriggerName             LongString
-	Unused                  [3]uint32
+	Name                    LongString `json:"name"`
+	DoorID                  Resref     `json:"door_id"`
+	Flags                   uint32     `json:"flags"`
+	OpenDoorVertexOffset    uint32     `json:"open_door_vertex_offset"`
+	OpenDoorVertexCount     uint16     `json:"open_door_vertex_count"`
+	ClosedDoorVertexCount   uint16     `json:"closed_door_vertex_count"`
+	CloseDoorVertexOffset   uint32     `json:"close_door_vertex_offset"`
+	OpenBoundingLeft        uint16     `json:"open_bounding_left"`
+	OpenBoundingTop         uint16     `json:"open_bounding_top"`
+	OpenBoundingRight       uint16     `json:"open_bounding_right"`
+	OpenBoundingBottom      uint16     `json:"open_bounding_bottom"`
+	ClosedBoundingLeft      uint16     `json:"closed_bounding_left"`
+	ClosedBoundingTop       uint16     `json:"closed_bounding_top"`
+	ClosedBoundingRight     uint16     `json:"closed_bounding_right"`
+	ClosedBoundingBottom    uint16     `json:"closed_bounding_bottom"`
+	OpenBlockVertexOffset   uint32     `json:"open_block_vertex_offset"`
+	OpenBlockVertexCount    uint16     `json:"open_block_vertex_count"`
+	ClosedBlockVertexCount  uint16     `json:"closed_block_vertex_count"`
+	ClosedBlockVertexOffset uint32     `json:"closed_block_vertex_offset"`
+	HitPoints               uint16     `json:"hit_points"`
+	ArmorClass              uint16     `json:"armor_class"`
+	OpenSound               Resref     `json:"open_sound"`
+	ClosedSound             Resref     `json:"closed_sound"`
+	CursorType              uint32     `json:"cursor_type"`
+	TrapDetectionDifficulty uint16     `json:"trap_detection_difficulty"`
+	TrapRemovalDifficulty   uint16     `json:"trap_removal_difficulty"`
+	DoorIsTrapped           uint16     `json:"door_is_trapped"`
+	TrapDetected            uint16     `json:"trap_detected"`
+	TrapLaunchTargetX       uint16     `json:"trap_launch_target_x"`
+	TrapLaunchTargetY       uint16     `json:"trap_launch_target_y"`
+	KeyItem                 Resref     `json:"key_item"`
+	DoorScript              Resref     `json:"door_script"`
+	DetectionDifficulty     uint32     `json:"detection_difficulty"`
+	LockDifficulty          uint32     `json:"lock_difficulty"`
+	WalkToX1                uint16     `json:"walk_to_x1"`
+	WalkToY1                uint16     `json:"walk_to_y1"`
+	WalkToX2                uint16     `json:"walk_to_x2"`
+	WalkToY2                uint16     `json:"walk_to_y2"`
+	NotPickableString       uint32     `json:"not_pickable_string"`
+	TriggerName             LongString `json:"trigger_name"`
+	Unused                  [3]uint32  `json:"unused"`
 }
 
 type AreaAnimation struct {
-	Name             LongString
-	CoordX           uint16
-	CoordY           uint16
-	TimeOfDayVisible uint32
-	Animation        Resref
-	BamSequence      uint16
-	BamFrame         uint16
-	Flags            uint32
-	Height           int16
-	Translucency     uint16
-	StartFrameRane   uint16
-	Probability      byte
-	Period           byte
-	Palette          Resref
-	Unused           uint32
+	Name             LongString `json:"name"`
+	CoordX           uint16     `json:"coord_x"`
+	CoordY           uint16     `json:"coord_y"`
+	TimeOfDayVisible uint32     `json:"time_of_day_visible"`
+	Animation        Resref     `json:"animation"`
+	BamSequence      uint16     `json:"bam_sequence"`
+	BamFrame         uint16     `json:"bam_frame"`
+	Flags            uint32     `json:"flags"`
+	Height           int16      `json:"height"`
+	Translucency     uint16     `json:"translucency"`
+	StartFrameRane   uint16     `json:"start_frame_rane"`
+	Probability      byte       `json:"probability"`
+	Period           byte       `json:"period"`
+	Palette          Resref     `json:"palette"`
+	Unused           uint32     `json:"unused"`
 }
 
 type AreaMapNote struct {
-	CoordX uint16
-	CoordY uint16
-	Note   uint32
-	Flags  uint32
-	Id     uint32
-	Unused [9]uint32
+	CoordX uint16    `json:"coord_x"`
+	CoordY uint16    `json:"coord_y"`
+	Note   uint32    `json:"note"`
+	Flags  uint32    `json:"flags"`
+	Id     uint32    `json:"id"`
+	Unused [9]uint32 `json:"unused"`
 }
 
 type AreaTiledObject struct {
-	Name                       LongString
-	TileID                     Resref
-	Flags                      uint32
-	PrimarySearchSquareStart   uint32
-	PrimarySearchSquareCount   uint16
-	SecondarySearchSquareCount uint16
-	SecondarySearcHSquareStart uint32
-	Unused                     [12]uint32
+	Name                       LongString `json:"name"`
+	TileID                     Resref     `json:"tile_id"`
+	Flags                      uint32     `json:"flags"`
+	PrimarySearchSquareStart   uint32     `json:"primary_search_square_start"`
+	PrimarySearchSquareCount   uint16     `json:"primary_search_square_count"`
+	SecondarySearchSquareCount uint16     `json:"secondary_search_square_count"`
+	SecondarySearcHSquareStart uint32     `json:"secondary_searc_h_square_start"`
+	Unused                     [12]uint32 `json:"unused"`
 }
 
 type AreaProjectileTrap struct {
-	Projectile        Resref
-	EffectBlockOffset uint32
-	EffectBlockSize   uint16
-	MissileId         uint16
-	DelayCount        uint16
-	RepetitionCount   uint16
-	CoordX            uint16
-	CoordY            uint16
-	CoordZ            uint16
-	TargetType        byte
-	PortraitNum       byte
+	Projectile        Resref `json:"projectile"`
+	EffectBlockOffset uint32 `json:"effect_block_offset"`
+	EffectBlockSize   uint16 `json:"effect_block_size"`
+	MissileId         uint16 `json:"missile_id"`
+	DelayCount        uint16 `json:"delay_count"`
+	RepetitionCount   uint16 `json:"repetition_count"`
+	CoordX            uint16 `json:"coord_x"`
+	CoordY            uint16 `json:"coord_y"`
+	CoordZ            uint16 `json:"coord_z"`
+	TargetType        byte   `json:"target_type"`
+	PortraitNum       byte   `json:"portrait_num"`
 }
 
 type AreaSong struct {
-	DaySong              uint32
-	NightSong            uint32
-	WinSong              uint32
-	BattleSong           uint32
-	LoseSong             uint32
-	AltMusic0            uint32
-	AltMusic1            uint32
-	AltMusic2            uint32
-	AltMusic3            uint32
-	AltMusic4            uint32
-	DayAmbient           Resref
-	DayAmbientExtended   Resref
-	DayAmbientVolume     uint32
-	NightAmbient         Resref
-	NightAmbientExtended Resref
-	NightAmbientVolume   uint32
-	Unused               [16]uint32
+	DaySong              uint32     `json:"day_song"`
+	NightSong            uint32     `json:"night_song"`
+	WinSong              uint32     `json:"win_song"`
+	BattleSong           uint32     `json:"battle_song"`
+	LoseSong             uint32     `json:"lose_song"`
+	AltMusic0            uint32     `json:"alt_music0"`
+	AltMusic1            uint32     `json:"alt_music1"`
+	AltMusic2            uint32     `json:"alt_music2"`
+	AltMusic3            uint32     `json:"alt_music3"`
+	AltMusic4            uint32     `json:"alt_music4"`
+	DayAmbient           Resref     `json:"day_ambient"`
+	DayAmbientExtended   Resref     `json:"day_ambient_extended"`
+	DayAmbientVolume     uint32     `json:"day_ambient_volume"`
+	NightAmbient         Resref     `json:"night_ambient"`
+	NightAmbientExtended Resref     `json:"night_ambient_extended"`
+	NightAmbientVolume   uint32     `json:"night_ambient_volume"`
+	Unused               [16]uint32 `json:"unused"`
 }
 
 type AreaRestEncounter struct {
-	Name                 LongString
-	RandomCreatureString [10]uint32
-	RandomCreature       [10]Resref
-	RandomCreatureNum    uint16
-	Difficulty           uint16
-	LifeSpan             uint32
-	HuntingRange         uint16
-	FollowRange          uint16
-	MaxTypeNum           uint16
-	Activated            uint16
-	ProbabilityDay       uint16
-	ProbabilityNight     uint16
-	Unused               [14]uint32
+	Name                 LongString `json:"name"`
+	RandomCreatureString [10]uint32 `json:"random_creature_string"`
+	RandomCreature       [10]Resref `json:"random_creature"`
+	RandomCreatureNum    uint16     `json:"random_creature_num"`
+	Difficulty           uint16     `json:"difficulty"`
+	LifeSpan             uint32     `json:"life_span"`
+	HuntingRange         uint16     `json:"hunting_range"`
+	FollowRange          uint16     `json:"follow_range"`
+	MaxTypeNum           uint16     `json:"max_type_num"`
+	Activated            uint16     `json:"activated"`
+	ProbabilityDay       uint16     `json:"probability_day"`
+	ProbabilityNight     uint16     `json:"probability_night"`
+	Unused               [14]uint32 `json:"unused"`
 }
 
 type Area struct {
-	areaHeader
-	Actors           []AreaActor
-	Regions          []AreaRegion
-	SpawnPoints      []AreaSpawnPoint
-	Entrances        []AreaEntrance
-	Containers       []AreaContainer
-	Items            []AreaItem
-	Vertices         []AreaVertex
-	Ambients         []AreaAmbient
-	Variables        []AreaVariable
-	ExploredBitmask  []byte
-	Doors            []AreaDoor
-	Animations       []AreaAnimation
-	MapNotes         []AreaMapNote
-	TiledObjects     []AreaTiledObject
-	Traps            []AreaProjectileTrap
-	Song             AreaSong
-	RestInterruption AreaRestEncounter
+	AreaHeader
+	Actors            []AreaActor          `json:"actors"`
+	Regions           []AreaRegion         `json:"regions"`
+	SpawnPoints       []AreaSpawnPoint     `json:"spawn_points"`
+	Entrances         []AreaEntrance       `json:"entrances"`
+	Containers        []AreaContainer      `json:"containers"`
+	Items             []AreaItem           `json:"items"`
+	Vertices          []AreaVertex         `json:"vertices"`
+	Ambients          []AreaAmbient        `json:"ambients"`
+	Variables         []AreaVariable       `json:"variables"`
+	ExploredBitmasks  []byte               `json:"explored_bitmasks"`
+	Doors             []AreaDoor           `json:"doors"`
+	Animations        []AreaAnimation      `json:"animations"`
+	MapNotes          []AreaMapNote        `json:"map_notes"`
+	TiledObjects      []AreaTiledObject    `json:"tiled_objects"`
+	Traps             []AreaProjectileTrap `json:"traps"`
+	Songs             AreaSong             `json:"songs"`
+	RestInterruptions AreaRestEncounter    `json:"rest_interruptions"`
+	Filename          string               `json:"-"`
 }
 
 func OpenArea(r io.ReadSeeker) (*Area, error) {
 	area := Area{}
 
-	err := binary.Read(r, binary.LittleEndian, &area.areaHeader)
+	err := binary.Read(r, binary.LittleEndian, &area.AreaHeader)
 	if err != nil {
 		return nil, err
 	}
@@ -437,9 +440,9 @@ func OpenArea(r io.ReadSeeker) (*Area, error) {
 	if err != nil {
 		return nil, err
 	}
-	area.ExploredBitmask = make([]byte, area.ExploredSize)
+	area.ExploredBitmasks = make([]byte, area.ExploredSize)
 	r.Seek(int64(area.VariableOffset), io.SeekStart)
-	err = binary.Read(r, binary.LittleEndian, &area.ExploredBitmask)
+	err = binary.Read(r, binary.LittleEndian, &area.ExploredBitmasks)
 	if err != nil {
 		return nil, err
 	}
@@ -474,12 +477,12 @@ func OpenArea(r io.ReadSeeker) (*Area, error) {
 		return nil, err
 	}
 	r.Seek(int64(area.SongEntriesOffset), io.SeekStart)
-	err = binary.Read(r, binary.LittleEndian, &area.Song)
+	err = binary.Read(r, binary.LittleEndian, &area.Songs)
 	if err != nil {
 		return nil, err
 	}
 	r.Seek(int64(area.RestInterruptionsOffset), io.SeekStart)
-	err = binary.Read(r, binary.LittleEndian, &area.RestInterruption)
+	err = binary.Read(r, binary.LittleEndian, &area.RestInterruptions)
 	if err != nil {
 		return nil, err
 	}
@@ -487,12 +490,45 @@ func OpenArea(r io.ReadSeeker) (*Area, error) {
 	return &area, nil
 }
 
-func (are *Area) WriteJson(w io.Writer) error {
-	bytes, err := json.MarshalIndent(are, "", "\t")
+func (area *Area) WriteJson(w io.Writer) error {
+	bytes, err := json.MarshalIndent(area, "", "\t")
 	if err != nil {
 		return err
 	}
 
 	_, err = w.Write(bytes)
 	return err
+}
+
+func (are *Area) Write(w io.Writer) error {
+	if err := binary.Write(w, binary.LittleEndian, are.AreaHeader); err != nil {
+		return err
+	}
+	order := map[uint32]func() error{
+		are.ActorsOffset:            func() error { return binary.Write(w, binary.LittleEndian, are.Actors) },
+		are.RegionOffset:            func() error { return binary.Write(w, binary.LittleEndian, are.Regions) },
+		are.SpawnPointOffset:        func() error { return binary.Write(w, binary.LittleEndian, are.SpawnPoints) },
+		are.EntranceOffset:          func() error { return binary.Write(w, binary.LittleEndian, are.Entrances) },
+		are.ContainerOffset:         func() error { return binary.Write(w, binary.LittleEndian, are.Containers) },
+		are.ItemOffset:              func() error { return binary.Write(w, binary.LittleEndian, are.Items) },
+		are.VertexOffset:            func() error { return binary.Write(w, binary.LittleEndian, are.Vertices) },
+		are.AmbientOffset:           func() error { return binary.Write(w, binary.LittleEndian, are.Ambients) },
+		are.VariableOffset:          func() error { return binary.Write(w, binary.LittleEndian, are.Variables) },
+		are.TiledObjectFlagOffset:   func() error { return binary.Write(w, binary.LittleEndian, are.TiledObjects) },
+		are.ExploredOffset:          func() error { return binary.Write(w, binary.LittleEndian, are.ExploredBitmasks) },
+		are.DoorsOffset:             func() error { return binary.Write(w, binary.LittleEndian, are.Doors) },
+		are.AnimationOffset:         func() error { return binary.Write(w, binary.LittleEndian, are.Animations) },
+		are.TiledObjectOffset:       func() error { return binary.Write(w, binary.LittleEndian, are.TiledObjects) },
+		are.SongEntriesOffset:       func() error { return binary.Write(w, binary.LittleEndian, are.Songs) },
+		are.RestInterruptionsOffset: func() error { return binary.Write(w, binary.LittleEndian, are.RestInterruptions) },
+		are.AutomapOffset:           func() error { return binary.Write(w, binary.LittleEndian, are.MapNotes) },
+		are.ProjectileTrapsOffset:   func() error { return binary.Write(w, binary.LittleEndian, are.Traps) },
+	}
+	for _, key := range slices.Sorted(maps.Keys(order)) {
+		if err := order[key](); err != nil {
+			return err
+		}
+	}
+
+	return nil
 }

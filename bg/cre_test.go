@@ -10,11 +10,11 @@ import (
 )
 
 var (
-	stoFixtures = filepath.Join(filepath.Dir(b), "../fixtures", "sto")
+	creFixtures = filepath.Join(filepath.Dir(b), "../fixtures", "cre")
 )
 
-func TestStore(t *testing.T) {
-	err := filepath.WalkDir(stoFixtures,
+func TestCreatures(t *testing.T) {
+	err := filepath.WalkDir(creFixtures,
 		func(path string, d fs.DirEntry, err error) error {
 			if d.IsDir() || filepath.Ext(d.Name()) == ".json" {
 				return nil
@@ -26,27 +26,27 @@ func TestStore(t *testing.T) {
 			if err != nil {
 				return err
 			}
-			sto, err := OpenSTO(file)
+			cre, err := OpenCre(file)
 			if err != nil {
 				return err
 			}
-			if sto == nil {
+			if cre == nil {
 				return fmt.Errorf("Parsed store is nil")
 			}
 			fixture, err := os.ReadFile(path + ".json")
 			if err != nil {
 				return err
 			}
-			expected := STO{}
-			if err = json.Unmarshal(fixture, &expected); err != nil {
+			expected := &CRE{}
+			if err = json.Unmarshal(fixture, expected); err != nil {
 				return err
 			}
-			if !sto.Equal(&expected) {
-				t.Fatalf("Result:\n%+v\n Does not match Expected:\n%+v\n", sto, expected)
+			if !cre.Equal(expected) {
+				t.Fatalf("Result:\n%+v\n Does not match Expected:\n%+v\n", cre, expected)
 			}
 			return nil
 		})
 	if err != nil {
-		t.Fatalf("Failed to parse store files: %+v", err)
+		t.Fatalf("Failed to parse effects files, %+v", err)
 	}
 }

@@ -3,7 +3,6 @@ package bg
 import (
 	"encoding/binary"
 	"encoding/json"
-	"fmt"
 	"io"
 	"strings"
 )
@@ -29,12 +28,19 @@ func max(x, y int) int {
 
 type LongString [32]byte
 
-func (r *LongString) String() string {
-	return string(r[0:])
+func (l *LongString) String() string {
+	return string(l[:])
 }
 
-func (r *LongString) MarshalJSON() ([]byte, error) {
-	return fmt.Appendf(nil, "\\%s\\", r.String()), nil
+func (l *LongString) MarshalJSON() ([]byte, error) {
+	return []byte(l.String()), nil
+}
+
+func (l *LongString) UnmarshalJSON(b []byte) error {
+	for i := range min(len(b)-2, 32) {
+		l[i] = b[i+1]
+	}
+	return nil
 }
 
 type Signature [4]byte

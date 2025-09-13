@@ -6,6 +6,7 @@ import (
 	"os"
 	"path/filepath"
 	"runtime"
+	"slices"
 	"testing"
 )
 
@@ -15,7 +16,7 @@ var (
 	arefixtures = filepath.Join(basepath, "../fixtures", "are")
 )
 
-func TestArea(t *testing.T) {
+func TestReadArea(t *testing.T) {
 	err := filepath.WalkDir(arefixtures,
 		func(path string, d fs.DirEntry, err error) error {
 			if d.IsDir() {
@@ -28,12 +29,33 @@ func TestArea(t *testing.T) {
 			if err != nil {
 				return err
 			}
+			defer file.Close()
 			area, err := OpenArea(file)
 			if err != nil {
 				return err
 			}
 			if area == nil {
 				return fmt.Errorf("Area nil failed")
+			}
+			tempFile, err := os.CreateTemp("", "")
+			if err != nil {
+				return err
+			}
+			defer tempFile.Close()
+			if err := area.Write(tempFile); err != nil {
+				return err
+			}
+			tempFileContents := []byte{}
+			if _, err := tempFile.Read(tempFileContents); err != nil {
+				return err
+			}
+			fixtureFileContents := []byte{}
+			if _, err := file.Read(fixtureFileContents); err != nil {
+				return err
+			}
+			if !slices.Equal(fixtureFileContents, tempFileContents) {
+				fmt.Printf("%v != %v\n", fixtureFileContents, tempFileContents)
+				return fmt.Errorf("Binary contents of fixture do not match writen file")
 			}
 			return nil
 		})

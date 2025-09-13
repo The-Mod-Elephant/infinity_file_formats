@@ -11,7 +11,7 @@ const (
 	NUM_ATTACK_TYPES = 6
 )
 
-type itmHeader struct {
+type ItmHeader struct {
 	Signature              Signature `json:"signature"`
 	Version                Version   `json:"version"`
 	GenericName            uint32    `json:"generic_name"`
@@ -98,14 +98,14 @@ type ItmEffect struct {
 }
 
 type ITM struct {
-	itmHeader
+	ItmHeader
 	Abilities []itmAbility `json:"abilities"`
 	Effects   []ItmEffect  `json:"effects"`
 	Filename  string       `json:"-"`
 }
 
 func (itm *ITM) Write(w io.Writer) error {
-	err := binary.Write(w, binary.LittleEndian, itm.itmHeader)
+	err := binary.Write(w, binary.LittleEndian, itm.ItmHeader)
 	if err != nil {
 		return err
 	}
@@ -177,7 +177,7 @@ func (itm *ITM) Strings() map[string]int {
 func OpenITM(r io.ReadSeeker) (*ITM, error) {
 	itm := &ITM{}
 
-	err := binary.Read(r, binary.LittleEndian, &itm.itmHeader)
+	err := binary.Read(r, binary.LittleEndian, &itm.ItmHeader)
 	if err != nil {
 		return nil, err
 	}
