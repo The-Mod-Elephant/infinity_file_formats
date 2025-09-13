@@ -1,7 +1,7 @@
 default_install_hook_types: [pre-commit, commit-msg]
 repos:
   - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v5.0.0
+    rev: v6.0.0
     hooks:
       - id: check-json
         stages: [pre-commit]
@@ -56,7 +56,7 @@ repos:
         stages: [pre-commit]
         exclude: (?x)^([bg|fixtures])
   - repo: https://github.com/commitizen-tools/commitizen
-    rev: v4.8.3
+    rev: v4.9.0
     hooks:
       - id: commitizen
         stages: [commit-msg]

@@ -11,14 +11,14 @@ jobs:
   pre-commit:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v3.0.2
+    - uses: actions/checkout@v5
       with:
         set-safe-directory: true
     - uses: actions/setup-python@v3
     - uses: pre-commit/action@v3.0.0
   test:
     runs-on: ubuntu-latest
-    container: golang:1.24.5-alpine3.22
+    container: golang:1.25.1-alpine3.22
     strategy:
       matrix:
         os: [linux, darwin, windows]
@@ -30,7 +30,7 @@ jobs:
       - name: Install git
         run: apk add --update --no-cache git
       - name: Checkout
-        uses: actions/checkout@v4.2.2
+        uses: actions/checkout@v5
         with:
           fetch-depth: 0
       - name: Build
@@ -38,7 +38,7 @@ jobs:
           go test -v ./...
   build:
     runs-on: ubuntu-latest
-    container: golang:1.24.5-alpine3.22
+    container: golang:1.25.1-alpine3.22
     strategy:
       matrix:
         os: [linux, darwin, windows]
@@ -50,7 +50,7 @@ jobs:
       - name: Install git
         run: apk add --update --no-cache git
       - name: Checkout
-        uses: actions/checkout@v4.2.2
+        uses: actions/checkout@v5
         with:
           fetch-depth: 0
       - name: Build
