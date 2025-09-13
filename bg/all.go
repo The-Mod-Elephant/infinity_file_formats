@@ -8,6 +8,11 @@ import (
 	"strings"
 )
 
+type BG interface {
+	Write(w io.Writer) error
+	WriteJson(w io.Writer) error
+}
+
 func min(x, y int) int {
 	if x < y {
 		return x

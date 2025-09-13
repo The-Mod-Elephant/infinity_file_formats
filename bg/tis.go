@@ -283,8 +283,7 @@ func (tis *Tis) Write(w io.Writer) error {
 }
 
 func NewTis() *Tis {
-	tis := Tis{version: 1}
-	return &tis
+	return &Tis{version: 1}
 }
 
 func OpenTis(r io.ReadSeeker, name string, root string) (*Tis, error) {
