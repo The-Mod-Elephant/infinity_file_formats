@@ -5,7 +5,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
-	"os"
 )
 
 type tlkHeader struct {
@@ -116,7 +115,7 @@ func (t *TLK) Entry(stringId int) (*tlkEntry, error) {
 
 func (t *TLK) Write(w io.WriteSeeker) error {
 
-	w.Seek(0, os.SEEK_SET)
+	w.Seek(0, io.SeekStart)
 	err := binary.Write(w, binary.LittleEndian, t.header)
 	if err != nil {
 		return err
@@ -125,7 +124,7 @@ func (t *TLK) Write(w io.WriteSeeker) error {
 	if err != nil {
 		return err
 	}
-	w.Seek(0, os.SEEK_CUR)
+	w.Seek(0, io.SeekCurrent)
 	_, err = w.Write(t.stringBuf)
 	if err != nil {
 		return err
@@ -134,7 +133,7 @@ func (t *TLK) Write(w io.WriteSeeker) error {
 
 }
 func (t *TLK) ConvertToUTF8(w io.WriteSeeker) error {
-	w.Seek(0, os.SEEK_SET)
+	w.Seek(0, io.SeekStart)
 	err := binary.Write(w, binary.LittleEndian, t.header)
 	if err != nil {
 		return err
@@ -150,13 +149,13 @@ func (t *TLK) ConvertToUTF8(w io.WriteSeeker) error {
 		t.entries[i].Offset = uint32(curStringOffset)
 		t.entries[i].Length = uint32(len(str))
 		curStringOffset += int(t.entries[i].Length)
-		w.Seek(int64(binary.Size(t.header)+binary.Size(t.entries[0])*i), os.SEEK_SET)
+		w.Seek(int64(binary.Size(t.header)+binary.Size(t.entries[0])*i), io.SeekStart)
 		err = binary.Write(w, binary.LittleEndian, t.entries[i])
 		if err != nil {
 			return err
 		}
 	}
-	w.Seek(int64(t.header.StringOffset), os.SEEK_SET)
+	w.Seek(int64(t.header.StringOffset), io.SeekStart)
 	for _, str := range strArray {
 		w.Write([]byte(str))
 	}
@@ -211,11 +210,11 @@ func NewTLK() (*TLK, error) {
 
 func OpenTlk(r io.ReadSeeker) (*TLK, error) {
 	tlk := &TLK{r: r, codepage: "latin1"}
-	tlkLen, err := r.Seek(0, os.SEEK_END)
+	tlkLen, err := r.Seek(0, io.SeekEnd)
 	if err != nil {
 		return nil, err
 	}
-	r.Seek(0, os.SEEK_SET)
+	r.Seek(0, io.SeekStart)
 	err = binary.Read(r, binary.LittleEndian, &tlk.header)
 	if err != nil {
 		return nil, err
@@ -226,7 +225,10 @@ func OpenTlk(r io.ReadSeeker) (*TLK, error) {
 	if err != nil {
 		return nil, err
 	}
-	tlkPos, err := r.Seek(0, os.SEEK_CUR)
+	tlkPos, err := r.Seek(0, io.SeekCurrent)
+	if err != nil {
+		return nil, err
+	}
 	tlk.stringBuf = make([]byte, tlkLen-tlkPos)
 	size, err := r.Read(tlk.stringBuf)
 	if err != nil {

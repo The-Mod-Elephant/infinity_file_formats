@@ -9,7 +9,7 @@ import (
 )
 
 var (
-	effFixtures = filepath.Join(filepath.Dir(b), "../fixtures", "eff")
+	effFixtures = filepath.Join(filepath.Dir(b), FixturesDirectory, "eff")
 )
 
 func TestEffect(t *testing.T) {

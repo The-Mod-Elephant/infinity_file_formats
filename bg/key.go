@@ -349,7 +349,7 @@ func CreateKeyFromDir(input_dir string, output_dir string) error {
 
 	fileNameOffset := uint32(binary.Size(header) + binary.Size(keyBifEntry{})*int(header.BifCount))
 
-	bifEntryOffset, _ := keyFile.Seek(0, os.SEEK_CUR)
+	bifEntryOffset, _ := keyFile.Seek(0, io.SeekCurrent)
 	for idx, bif := range sortedBifs {
 		files := bifs[bif]
 		biffSize, err := MakeBiffFromDir(filepath.Join(output_dir, "data", bif+".bif"), filepath.Join(input_dir, bif), files, idx)
@@ -358,21 +358,21 @@ func CreateKeyFromDir(input_dir string, output_dir string) error {
 		}
 		bifInternalName := "data/" + bif + ".bif"
 		log.Printf("Bif[%d]: %s.bif Size: %d\n", idx, bif, biffSize)
-		keyFile.Seek(bifEntryOffset, os.SEEK_SET)
+		keyFile.Seek(bifEntryOffset, io.SeekStart)
 		entry := keyBifEntry{uint32(biffSize), uint32(fileNameOffset), uint16(len(bifInternalName)), 0}
 		binary.Write(keyFile, binary.LittleEndian, entry)
 		bifEntryOffset += int64(binary.Size(entry))
 
-		keyFile.Seek(int64(fileNameOffset), os.SEEK_SET)
+		keyFile.Seek(int64(fileNameOffset), io.SeekStart)
 		keyFile.Write([]byte(bifInternalName[0:]))
 		fileNameOffset += uint32(len(bifInternalName))
 	}
 	// rewrite header with correct resource offset
-	keyFile.Seek(0, os.SEEK_SET)
+	keyFile.Seek(0, io.SeekStart)
 	header.ResourceOffset = uint32(binary.Size(header)+binary.Size(keyBifEntry{})*int(header.BifCount)) + fileNameOffset
 	binary.Write(keyFile, binary.LittleEndian, header)
 
-	keyFile.Seek(int64(header.ResourceOffset), os.SEEK_SET)
+	keyFile.Seek(int64(header.ResourceOffset), io.SeekStart)
 	for biffId, bif := range sortedBifs {
 		idx := 0
 		files := bifs[bif]

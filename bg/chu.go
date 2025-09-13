@@ -432,7 +432,7 @@ func DecodeChu(r io.ReadSeeker) (*CHU, error) {
 	}
 
 	chu.panels = make([]chuPanelHeader, chu.Header.PanelCount)
-	_, err = r.Seek(int64(chu.Header.PanelOffset), os.SEEK_SET)
+	_, err = r.Seek(int64(chu.Header.PanelOffset), io.SeekStart)
 	if err != nil {
 		return nil, err
 	}
@@ -445,7 +445,7 @@ func DecodeChu(r io.ReadSeeker) (*CHU, error) {
 		controlCount += int(panel.ControlCount)
 	}
 	controlTable := make([]chuControlTable, controlCount)
-	_, err = r.Seek(int64(chu.Header.ControlOffset), os.SEEK_SET)
+	_, err = r.Seek(int64(chu.Header.ControlOffset), io.SeekStart)
 	if err != nil {
 		return nil, err
 	}
@@ -456,7 +456,7 @@ func DecodeChu(r io.ReadSeeker) (*CHU, error) {
 	for _, panel := range chu.panels {
 		p := chuPanel{ID: panel.PanelID, X: panel.X, Y: panel.Y, Width: panel.Width, Height: panel.Height, Type: panel.Type, Mosaic: panel.Mosaic}
 		for idx, control := range controlTable[panel.FirstControl : panel.FirstControl+panel.ControlCount] {
-			_, err = r.Seek(int64(control.ControlOffset), os.SEEK_SET)
+			_, err = r.Seek(int64(control.ControlOffset), io.SeekStart)
 			if err != nil {
 				return nil, err
 			}
@@ -467,7 +467,7 @@ func DecodeChu(r io.ReadSeeker) (*CHU, error) {
 			}
 			chu.Controls[idx].ControlID = controlBase.ControlID
 			// Re-seek back to the start of the control once we know what kind we have
-			_, err = r.Seek(int64(control.ControlOffset), os.SEEK_SET)
+			_, err = r.Seek(int64(control.ControlOffset), io.SeekStart)
 			if err != nil {
 				return nil, err
 			}

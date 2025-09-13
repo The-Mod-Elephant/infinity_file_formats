@@ -9,7 +9,7 @@ import (
 )
 
 var (
-	itmFixtures = filepath.Join(filepath.Dir(b), "../fixtures", "itm")
+	itmFixtures = filepath.Join(filepath.Dir(b), FixturesDirectory, "itm")
 )
 
 func TestItem(t *testing.T) {

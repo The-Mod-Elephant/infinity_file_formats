@@ -139,7 +139,7 @@ func (tis *Tis) readV1(r io.ReadSeeker) error {
 
 	tis.image = image.NewRGBA(image.Rect(0, 0, int(tis.Header.TileCount)*64, 64))
 
-	r.Seek(int64(tis.Header.HeaderSize), os.SEEK_SET)
+	r.Seek(int64(tis.Header.HeaderSize), io.SeekStart)
 	for idx := 0; idx < int(tis.Header.TileCount); idx++ {
 		if err := binary.Read(r, binary.LittleEndian, &tileColors); err != nil {
 			return err
@@ -223,7 +223,7 @@ func NewPVRTexture(r io.ReadSeeker) (*tisPvrTexture, error) {
 	}
 	uncompressed, err := ioutil.ReadAll(zr)
 	data := bytes.NewReader(uncompressed)
-	data.Seek(0, os.SEEK_SET)
+	data.Seek(0, io.SeekStart)
 	binary.Read(data, binary.LittleEndian, &tex.Header)
 
 	switch tex.Header.PixelFormatlo {
@@ -295,11 +295,11 @@ func OpenTis(r io.ReadSeeker, name string, root string) (*Tis, error) {
 		return nil, fmt.Errorf("unable to read header: %v", err)
 	}
 
-	fileLen, err := r.Seek(0, os.SEEK_END)
+	fileLen, err := r.Seek(0, io.SeekEnd)
 	if err != nil {
 		return nil, err
 	}
-	r.Seek(0, os.SEEK_SET)
+	r.Seek(0, io.SeekStart)
 
 	if header.Signature != [4]byte{'T', 'I', 'S', ' '} {
 		tis.version = 2

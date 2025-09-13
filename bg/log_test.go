@@ -10,7 +10,7 @@ import (
 )
 
 var (
-	logFixtures = filepath.Join(filepath.Dir(b), "../fixtures", "log")
+	logFixtures = filepath.Join(filepath.Dir(b), FixturesDirectory, "log")
 )
 
 func TestLog(t *testing.T) {

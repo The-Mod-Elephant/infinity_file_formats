@@ -6,7 +6,7 @@ import (
 	"io"
 )
 
-type splHeader struct {
+type SplHeader struct {
 	Signature             Signature `json:"signature"`
 	Version               Version   `json:"version"`
 	GenericName           uint32    `json:"generic_name"`
@@ -47,7 +47,7 @@ type splHeader struct {
 	CastingEffectCount    uint16    `json:"casting_effect_count"`
 }
 
-type splAbility struct {
+type SplAbility struct {
 	Type            uint16 `json:"type"`
 	QuickSlotType   uint16 `json:"quick_slot_type"`
 	QuickSlotIcon   Resref `json:"quick_slot_icon"`
@@ -69,23 +69,20 @@ type splAbility struct {
 }
 
 type SPL struct {
-	splHeader
-	Abilities []splAbility `json:"abilities"`
+	SplHeader
+	Abilities []SplAbility `json:"abilities"`
 	Effects   []ItmEffect  `json:"effects"`
 	Filename  string       `json:"-"`
 }
 
 func (spl *SPL) Write(w io.Writer) error {
-	err := binary.Write(w, binary.LittleEndian, spl.splHeader)
-	if err != nil {
+	if err := binary.Write(w, binary.LittleEndian, spl.SplHeader); err != nil {
 		return err
 	}
-	err = binary.Write(w, binary.LittleEndian, spl.Abilities)
-	if err != nil {
+	if err := binary.Write(w, binary.LittleEndian, spl.Abilities); err != nil {
 		return err
 	}
-	err = binary.Write(w, binary.LittleEndian, spl.Effects)
-	if err != nil {
+	if err := binary.Write(w, binary.LittleEndian, spl.Effects); err != nil {
 		return err
 	}
 	return nil
@@ -94,13 +91,13 @@ func (spl *SPL) Write(w io.Writer) error {
 func OpenSPL(r io.ReadSeeker) (*SPL, error) {
 	spl := SPL{}
 
-	err := binary.Read(r, binary.LittleEndian, &spl.splHeader)
+	err := binary.Read(r, binary.LittleEndian, &spl.SplHeader)
 	if err != nil {
 		return nil, err
 	}
 
-	spl.Abilities, err = parseArray[splAbility](r, uint32(spl.AbilityCount), spl.AbilityOffset)
-	if err != nil {
+	spl.Abilities = make([]SplAbility, spl.AbilityCount)
+	if err := parseArray(r, spl.AbilityOffset, spl.Abilities); err != nil {
 		return nil, err
 	}
 

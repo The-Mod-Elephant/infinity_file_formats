@@ -8,10 +8,10 @@ import (
 	"slices"
 )
 
-type stoItemTypes uint32
+type StoItemTypes uint32
 
 const (
-	BooksMisc stoItemTypes = iota
+	BooksMisc StoItemTypes = iota
 	AmuletsAndNecklaces
 	Armor
 	BeltsAndGirdles
@@ -87,7 +87,7 @@ const (
 	Gauntlet
 )
 
-var stoItemTypeName = map[stoItemTypes]string{
+var stoItemTypeName = map[StoItemTypes]string{
 	BooksMisc:                     "BooksMisc",
 	AmuletsAndNecklaces:           "AmuletsAndNecklaces",
 	Armor:                         "Armor",
@@ -164,11 +164,11 @@ var stoItemTypeName = map[stoItemTypes]string{
 	Gauntlet:                      "Gauntlet",
 }
 
-func (it stoItemTypes) String() string {
+func (it StoItemTypes) String() string {
 	return stoItemTypeName[it]
 }
 
-type stoHeader struct {
+type StoHeader struct {
 	Signature                    Signature `json:"signature"`
 	Version                      Version   `json:"version"`
 	StoreType                    uint32    `json:"store_type"`
@@ -200,7 +200,7 @@ type stoHeader struct {
 	Unused                       [36]uint8 `json:"unused"`
 }
 
-type stoItems struct {
+type StoItems struct {
 	FileNameOfItem     Resref `json:"filename_of_item"`
 	ItemExpirationTime uint16 `json:"item_expiration_time"`
 	Charges1           uint16 `json:"charges1"`
@@ -211,29 +211,29 @@ type stoItems struct {
 	InfiniteSupplyFlag uint32 `json:"infinite_supply_flag"`
 }
 
-type stoDrinks struct {
+type StoDrinks struct {
 	RumourResource    Resref `json:"rumour_resource"`
 	Name              uint32 `json:"name"`
 	Price             uint32 `json:"price"`
 	AlcoholicStrength uint32 `json:"alcoholic_strength"`
 }
 
-type stoCures struct {
+type StoCures struct {
 	FileNameOfSpell Resref `json:"file_name_of_spell"`
 	SpellPrice      uint32 `json:"spell_price"`
 }
 
 type STO struct {
-	stoHeader
-	Items              []stoItems     `json:"items_for_sale"`
-	Drinks             []stoDrinks    `json:"drinks_for_sale"`
-	Cures              []stoCures     `json:"cures_for_sale"`
-	ItemsPurchasedHere []stoItemTypes `json:"items_purchased_here"`
+	StoHeader
+	Items              []StoItems     `json:"items_for_sale"`
+	Drinks             []StoDrinks    `json:"drinks_for_sale"`
+	Cures              []StoCures     `json:"cures_for_sale"`
+	ItemsPurchasedHere []StoItemTypes `json:"items_purchased_here"`
 	Filename           string         `json:"-"`
 }
 
 func (sto *STO) Equal(other *STO) bool {
-	if !reflect.DeepEqual(sto.stoHeader, other.stoHeader) {
+	if !reflect.DeepEqual(sto.StoHeader, other.StoHeader) {
 		return false
 	}
 	if !reflect.DeepEqual(sto.Cures, other.Cures) {
@@ -252,24 +252,19 @@ func (sto *STO) Equal(other *STO) bool {
 }
 
 func (sto *STO) Write(w io.Writer) error {
-	err := binary.Write(w, binary.LittleEndian, sto.stoHeader)
-	if err != nil {
+	if err := binary.Write(w, binary.LittleEndian, sto.StoHeader); err != nil {
 		return err
 	}
-	err = binary.Write(w, binary.LittleEndian, sto.Items)
-	if err != nil {
+	if err := binary.Write(w, binary.LittleEndian, sto.Items); err != nil {
 		return err
 	}
-	err = binary.Write(w, binary.LittleEndian, sto.Drinks)
-	if err != nil {
+	if err := binary.Write(w, binary.LittleEndian, sto.Drinks); err != nil {
 		return err
 	}
-	err = binary.Write(w, binary.LittleEndian, sto.Cures)
-	if err != nil {
+	if err := binary.Write(w, binary.LittleEndian, sto.Cures); err != nil {
 		return err
 	}
-	err = binary.Write(w, binary.LittleEndian, sto.ItemsPurchasedHere)
-	if err != nil {
+	if err := binary.Write(w, binary.LittleEndian, sto.ItemsPurchasedHere); err != nil {
 		return err
 	}
 	return nil
@@ -278,31 +273,25 @@ func (sto *STO) Write(w io.Writer) error {
 func OpenSTO(r io.ReadSeeker) (*STO, error) {
 	sto := STO{}
 
-	err := binary.Read(r, binary.LittleEndian, &sto.stoHeader)
-	if err != nil {
+	if err := binary.Read(r, binary.LittleEndian, &sto.StoHeader); err != nil {
 		return nil, err
 	}
-
-	sto.Items, err = parseArray[stoItems](r, sto.CountOfItemsForSale, sto.OffsetToItemsForSale)
-	if err != nil {
+	sto.Items = make([]StoItems, sto.CountOfItemsForSale)
+	if err := parseArray(r, sto.OffsetToItemsForSale, sto.Items); err != nil {
 		return nil, err
 	}
-
-	sto.Drinks, err = parseArray[stoDrinks](r, sto.CountOfDrinks, sto.OffsetToDrinks)
-	if err != nil {
+	sto.Drinks = make([]StoDrinks, sto.CountOfDrinks)
+	if err := parseArray(r, sto.OffsetToDrinks, sto.Drinks); err != nil {
 		return nil, err
 	}
-
-	sto.Cures, err = parseArray[stoCures](r, sto.CountOfCures, sto.OffsetToCures)
-	if err != nil {
+	sto.Cures = make([]StoCures, sto.CountOfCures)
+	if err := parseArray(r, sto.OffsetToCures, sto.Cures); err != nil {
 		return nil, err
 	}
-
-	sto.ItemsPurchasedHere, err = parseArray[stoItemTypes](r, sto.CountOfItemsPurchased, sto.OffsetToItemsPurchased)
-	if err != nil {
+	sto.ItemsPurchasedHere = make([]StoItemTypes, sto.CountOfItemsPurchased)
+	if err := parseArray(r, sto.OffsetToItemsPurchased, sto.ItemsPurchasedHere); err != nil {
 		return nil, err
 	}
-
 	return &sto, nil
 }
 

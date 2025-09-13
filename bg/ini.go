@@ -107,14 +107,12 @@ func parseFile(in *bufio.Reader, file File) (err error) {
 	return nil
 }
 
-// Loads and returns a File from a reader.
 func OpenINI(in io.Reader) (File, error) {
 	file := make(File)
 	err := file.Load(in)
 	return file, err
 }
 
-// Loads and returns an INI File from a file on disk.
 func LoadFile(filename string) (File, error) {
 	file := make(File)
 	err := file.LoadFile(filename)
