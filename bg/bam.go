@@ -450,14 +450,14 @@ func (d *decoder) readv2(r io.ReadSeeker, _ []byte, key *KEY) error {
 		return fmt.Errorf("V2 bams not supported if no key specified")
 	}
 	var header BamHeaderV2
-	r.Seek(0, os.SEEK_SET)
+	r.Seek(0, io.SeekStart)
 	err := binary.Read(r, binary.LittleEndian, &header)
 	if err != nil {
 		return fmt.Errorf("Unable to read frames from bam")
 	}
 
 	v2Frames := make([]BamFrameV2, uint64(header.Frames))
-	r.Seek(int64(header.FramesOffset), os.SEEK_SET)
+	r.Seek(int64(header.FramesOffset), io.SeekStart)
 	err = binary.Read(r, binary.LittleEndian, &v2Frames)
 	if err != nil {
 		return fmt.Errorf("Unable to read frames from bam")
@@ -472,11 +472,11 @@ func (d *decoder) readv2(r io.ReadSeeker, _ []byte, key *KEY) error {
 	}
 
 	d.Cycles = make([]BamCycle, uint64(header.Sequences))
-	r.Seek(int64(header.SequencesOffset), os.SEEK_SET)
+	r.Seek(int64(header.SequencesOffset), io.SeekStart)
 	binary.Read(r, binary.LittleEndian, &d.Cycles)
 
 	quads := make([]BamMosaicQuad, uint64(header.Quads))
-	r.Seek(int64(header.QuadsOffset), os.SEEK_SET)
+	r.Seek(int64(header.QuadsOffset), io.SeekStart)
 	binary.Read(r, binary.LittleEndian, &quads)
 
 	for _, frame := range v2Frames {
@@ -512,7 +512,7 @@ func (d *decoder) decode(r io.Reader, _ bool, key *KEY) error {
 	binary.Read(bamFile, binary.LittleEndian, &d.Header)
 
 	if string(d.Header.Signature[0:]) == "BAMC" {
-		bamFile.Seek(0x0C, os.SEEK_SET)
+		bamFile.Seek(0x0C, io.SeekStart)
 		r, err := zlib.NewReader(bamFile)
 		if err != nil {
 			return fmt.Errorf("Unable to zlib decompress BAMC file: %v", err)

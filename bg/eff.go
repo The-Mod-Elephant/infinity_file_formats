@@ -8,7 +8,7 @@ import (
 	"unicode/utf8"
 )
 
-type effHeader struct {
+type EffHeader struct {
 	Signature Signature
 	Version   Version
 }
@@ -59,7 +59,7 @@ type EffEffect struct {
 }
 
 func OpenEff(r io.ReadSeeker) (*ItmEffect, *EffEffect, error) {
-	effHeader := &effHeader{}
+	effHeader := &EffHeader{}
 	effv1 := &ItmEffect{}
 	effv2 := &EffEffect{}
 
@@ -75,22 +75,24 @@ func OpenEff(r io.ReadSeeker) (*ItmEffect, *EffEffect, error) {
 		return nil, nil, err
 	}
 
-	if version == 1 {
-		_, err = r.Seek(0, 0)
-		if err != nil {
+	switch version {
+	case 1:
+		if _, err = r.Seek(0, 0); err != nil {
 			return nil, nil, err
 		}
-		err = binary.Read(r, binary.LittleEndian, effv1)
-		if err != nil {
+		if err = binary.Read(r, binary.LittleEndian, effv1); err != nil {
 			return nil, nil, err
 		}
-	} else if version == 2 {
-		err = binary.Read(r, binary.LittleEndian, effv2)
-		if err != nil {
+	case 2:
+		if err = binary.Read(r, binary.LittleEndian, effv2); err != nil {
 			return nil, nil, err
 		}
 	}
 	return effv1, effv2, nil
+}
+
+func (eff *ItmEffect) Write(w io.Writer) error {
+	return binary.Write(w, binary.LittleEndian, eff)
 }
 
 func (eff *ItmEffect) WriteJson(w io.Writer) error {
@@ -101,6 +103,10 @@ func (eff *ItmEffect) WriteJson(w io.Writer) error {
 
 	_, err = w.Write(bytes)
 	return err
+}
+
+func (eff *EffEffect) Write(w io.Writer) error {
+	return binary.Write(w, binary.LittleEndian, eff)
 }
 
 func (eff *EffEffect) WriteJson(w io.Writer) error {

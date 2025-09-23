@@ -267,24 +267,24 @@ func OpenWed(r io.ReadSeeker) (*Wed, error) {
 	wed.Overlays = make([]wedOverlay, wed.Header.OverlayCount)
 	wed.Doors = make([]wedDoor, wed.Header.DoorCount)
 
-	r.Seek(int64(wed.Header.SecondHeaderOffset), os.SEEK_SET)
+	r.Seek(int64(wed.Header.SecondHeaderOffset), io.SeekStart)
 	if err = binary.Read(r, binary.LittleEndian, &wed.Header2); err != nil {
 		return nil, err
 	}
 
 	wed.Polygons = make([]wedPolygon, wed.Header2.PolygonCount)
 
-	r.Seek(int64(wed.Header.OverlayOffset), os.SEEK_SET)
+	r.Seek(int64(wed.Header.OverlayOffset), io.SeekStart)
 	if err = binary.Read(r, binary.LittleEndian, &wed.Overlays); err != nil {
 		return nil, err
 	}
 
-	r.Seek(int64(wed.Header.DoorOffset), os.SEEK_SET)
+	r.Seek(int64(wed.Header.DoorOffset), io.SeekStart)
 	if err = binary.Read(r, binary.LittleEndian, &wed.Doors); err != nil {
 		return nil, err
 	}
 
-	r.Seek(int64(wed.Header2.PolygonOffset), os.SEEK_SET)
+	r.Seek(int64(wed.Header2.PolygonOffset), io.SeekStart)
 	if err = binary.Read(r, binary.LittleEndian, &wed.Polygons); err != nil {
 		return nil, err
 	}
@@ -292,14 +292,14 @@ func OpenWed(r io.ReadSeeker) (*Wed, error) {
 	doorTileCells := 0
 	for _, door := range wed.Doors {
 		polygons := make([]wedPolygon, door.PolygonOpenCount)
-		r.Seek(int64(door.PolygonOpenOffset), os.SEEK_SET)
+		r.Seek(int64(door.PolygonOpenOffset), io.SeekStart)
 		if err = binary.Read(r, binary.LittleEndian, &polygons); err != nil {
 			return nil, err
 		}
 		wed.Polygons = append(wed.Polygons, polygons...)
 
 		polygons = make([]wedPolygon, door.PolygonClosedCount)
-		r.Seek(int64(door.PolygonClosedOffset), os.SEEK_SET)
+		r.Seek(int64(door.PolygonClosedOffset), io.SeekStart)
 		if err = binary.Read(r, binary.LittleEndian, &polygons); err != nil {
 			return nil, err
 		}
@@ -309,7 +309,7 @@ func OpenWed(r io.ReadSeeker) (*Wed, error) {
 	}
 
 	wed.DoorTileCells = make([]uint16, doorTileCells)
-	r.Seek(int64(wed.Header.DoorTileCellsOffset), os.SEEK_SET)
+	r.Seek(int64(wed.Header.DoorTileCellsOffset), io.SeekStart)
 	if err = binary.Read(r, binary.LittleEndian, &wed.DoorTileCells); err != nil {
 		return nil, err
 	}
@@ -320,7 +320,7 @@ func OpenWed(r io.ReadSeeker) (*Wed, error) {
 	}
 	wed.Vertices = make([]wedVertex, vertexCount)
 
-	r.Seek(int64(wed.Header2.VertexOffset), os.SEEK_SET)
+	r.Seek(int64(wed.Header2.VertexOffset), io.SeekStart)
 	if err = binary.Read(r, binary.LittleEndian, &wed.Vertices); err != nil {
 		return nil, err
 	}
@@ -328,7 +328,7 @@ func OpenWed(r io.ReadSeeker) (*Wed, error) {
 	wallGroupCount := int(wed.Overlays[0].Width*wed.Overlays[0].Height) / 75
 	wed.WallGroups = make([]wedWallGroup, wallGroupCount)
 
-	r.Seek(int64(wed.Header2.WallGroupOffset), os.SEEK_SET)
+	r.Seek(int64(wed.Header2.WallGroupOffset), io.SeekStart)
 	if err = binary.Read(r, binary.LittleEndian, &wed.WallGroups); err != nil {
 		return nil, err
 	}
@@ -339,14 +339,14 @@ func OpenWed(r io.ReadSeeker) (*Wed, error) {
 	}
 	wed.PolygonIndices = make([]uint16, polygonIndexCount)
 
-	r.Seek(int64(wed.Header2.PolygonIndexLookupOffset), os.SEEK_SET)
+	r.Seek(int64(wed.Header2.PolygonIndexLookupOffset), io.SeekStart)
 	if err = binary.Read(r, binary.LittleEndian, &wed.PolygonIndices); err != nil {
 		return nil, err
 	}
 
 	wed.Tilemaps = make([][]wedTilemap, len(wed.Overlays))
 	for idx, overlay := range wed.Overlays {
-		r.Seek(int64(overlay.TilemapOffset), os.SEEK_SET)
+		r.Seek(int64(overlay.TilemapOffset), io.SeekStart)
 		wed.Tilemaps[idx] = make([]wedTilemap, int(overlay.Width*overlay.Height))
 		if err = binary.Read(r, binary.LittleEndian, &wed.Tilemaps[idx]); err != nil {
 			return nil, err
@@ -356,7 +356,7 @@ func OpenWed(r io.ReadSeeker) (*Wed, error) {
 			tileIndexLookupCount += int(tilemap.TileIndexLookupCount)
 		}
 		tileindices := make([]uint16, tileIndexLookupCount)
-		r.Seek(int64(overlay.TileIndexLookupOffset), os.SEEK_SET)
+		r.Seek(int64(overlay.TileIndexLookupOffset), io.SeekStart)
 		if err = binary.Read(r, binary.LittleEndian, &tileindices); err != nil {
 			return nil, err
 		}

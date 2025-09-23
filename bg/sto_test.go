@@ -10,7 +10,7 @@ import (
 )
 
 var (
-	stoFixtures = filepath.Join(filepath.Dir(b), "../fixtures", "sto")
+	stoFixtures = filepath.Join(filepath.Dir(b), FixturesDirectory, "sto")
 )
 
 func TestStore(t *testing.T) {
@@ -42,7 +42,7 @@ func TestStore(t *testing.T) {
 				return err
 			}
 			if !sto.Equal(&expected) {
-				t.Fatalf("Result:\n%+v\n Does not match Expected:\n%+v\n", sto.Items, expected.Items)
+				t.Fatalf("Result:\n%+v\n Does not match Expected:\n%+v\n", sto, expected)
 			}
 			return nil
 		})
