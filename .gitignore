@@ -33,6 +33,7 @@ infinity_file_format*
 
 # Secrets
 .envrc
+.direnv
 
 # Editor files
 .swp
