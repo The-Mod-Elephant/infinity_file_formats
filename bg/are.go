@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"io"
 	"maps"
+	"reflect"
 	"slices"
 )
 
@@ -377,6 +378,64 @@ type Area struct {
 	Songs             AreaSong             `json:"songs"`
 	RestInterruptions AreaRestEncounter    `json:"rest_interruptions"`
 	Filename          string               `json:"-"`
+}
+
+func (a *Area) Equal(other *Area) bool {
+	if !reflect.DeepEqual(a.AreaHeader, other.AreaHeader) {
+		return false
+	}
+	if !slices.Equal(a.Actors, other.Actors) {
+		return false
+	}
+	if !slices.Equal(a.Regions, other.Regions) {
+		return false
+	}
+	if !slices.Equal(a.SpawnPoints, other.SpawnPoints) {
+		return false
+	}
+	if !slices.Equal(a.Entrances, other.Entrances) {
+		return false
+	}
+	if !slices.Equal(a.Containers, other.Containers) {
+		return false
+	}
+	if !slices.Equal(a.Items, other.Items) {
+		return false
+	}
+	if !slices.Equal(a.Vertices, other.Vertices) {
+		return false
+	}
+	if !slices.Equal(a.Ambients, other.Ambients) {
+		return false
+	}
+	if !slices.Equal(a.Variables, other.Variables) {
+		return false
+	}
+	if !slices.Equal(a.ExploredBitmasks, other.ExploredBitmasks) {
+		return false
+	}
+	if !slices.Equal(a.Doors, other.Doors) {
+		return false
+	}
+	if !slices.Equal(a.Animations, other.Animations) {
+		return false
+	}
+	if !slices.Equal(a.MapNotes, other.MapNotes) {
+		return false
+	}
+	if !slices.Equal(a.TiledObjects, other.TiledObjects) {
+		return false
+	}
+	if !slices.Equal(a.Traps, other.Traps) {
+		return false
+	}
+	if !reflect.DeepEqual(a.Songs, other.Songs) {
+		return false
+	}
+	// if !reflect.DeepEqual(a.RestInterruptions, other.RestInterruptions) {
+	// 	return false
+	// }
+	return true
 }
 
 func OpenArea(r io.ReadSeeker) (*Area, error) {

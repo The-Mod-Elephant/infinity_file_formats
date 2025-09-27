@@ -29,11 +29,11 @@ func max(x, y int) int {
 type LongString [32]byte
 
 func (l *LongString) String() string {
-	return string(l[:])
+	return strings.Split(string(l[0:]), "\x00")[0]
 }
 
 func (l *LongString) MarshalJSON() ([]byte, error) {
-	return []byte(l.String()), nil
+	return json.Marshal(l.String())
 }
 
 func (l *LongString) UnmarshalJSON(b []byte) error {
@@ -46,7 +46,7 @@ func (l *LongString) UnmarshalJSON(b []byte) error {
 type Signature [4]byte
 
 func (s Signature) String() string {
-	return string(s[:])
+	return strings.Split(string(s[0:]), "\x00")[0]
 }
 
 func (s *Signature) UnmarshalJSON(b []byte) error {
@@ -69,7 +69,7 @@ func (s *Signature) Valid() bool {
 type Version [4]byte
 
 func (v Version) String() string {
-	return string(v[0:])
+	return strings.Split(string(v[0:]), "\x00")[0]
 }
 
 func (v *Version) UnmarshalJSON(b []byte) error {
