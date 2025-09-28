@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"io"
 	"maps"
+	"reflect"
 	"slices"
 )
 
@@ -45,9 +46,9 @@ type AreaHeader struct {
 	AmbientCount            uint16    `json:"ambient_count"`
 	AmbientOffset           uint32    `json:"ambient_offset"`
 	VariableOffset          uint32    `json:"variable_offset"`
-	VariableCount           uint16    `json:"variable_count"`
+	VariableCount           uint32    `json:"variable_count"`
+	TiledObjectFlagOffset   uint16    `json:"tiled_object_flag_offset"`
 	TiledObjectFlagCount    uint16    `json:"tiled_object_flag_count"`
-	TiledObjectFlagOffset   uint32    `json:"tiled_object_flag_offset"`
 	Script                  Resref    `json:"script"`
 	ExploredSize            uint32    `json:"explored_size"`
 	ExploredOffset          uint32    `json:"explored_offset"`
@@ -343,7 +344,7 @@ type AreaSong struct {
 
 type AreaRestEncounter struct {
 	Name                 LongString `json:"name"`
-	RandomCreatureString [10]uint32 `json:"random_creature_string"`
+	RandomCreatureString [10]strref `json:"random_creature_string"`
 	RandomCreature       [10]Resref `json:"random_creature"`
 	RandomCreatureNum    uint16     `json:"random_creature_num"`
 	Difficulty           uint16     `json:"difficulty"`
@@ -354,7 +355,7 @@ type AreaRestEncounter struct {
 	Activated            uint16     `json:"activated"`
 	ProbabilityDay       uint16     `json:"probability_day"`
 	ProbabilityNight     uint16     `json:"probability_night"`
-	Unused               [14]uint32 `json:"unused"`
+	Unused               [56]uint8  `json:"unused"`
 }
 
 type Area struct {
@@ -377,6 +378,64 @@ type Area struct {
 	Songs             AreaSong             `json:"songs"`
 	RestInterruptions AreaRestEncounter    `json:"rest_interruptions"`
 	Filename          string               `json:"-"`
+}
+
+func (a *Area) Equal(other *Area) bool {
+	if !reflect.DeepEqual(a.AreaHeader, other.AreaHeader) {
+		return false
+	}
+	if !slices.Equal(a.Actors, other.Actors) {
+		return false
+	}
+	if !slices.Equal(a.Regions, other.Regions) {
+		return false
+	}
+	if !slices.Equal(a.SpawnPoints, other.SpawnPoints) {
+		return false
+	}
+	if !slices.Equal(a.Entrances, other.Entrances) {
+		return false
+	}
+	if !slices.Equal(a.Containers, other.Containers) {
+		return false
+	}
+	if !slices.Equal(a.Items, other.Items) {
+		return false
+	}
+	if !slices.Equal(a.Vertices, other.Vertices) {
+		return false
+	}
+	if !slices.Equal(a.Ambients, other.Ambients) {
+		return false
+	}
+	if !slices.Equal(a.Variables, other.Variables) {
+		return false
+	}
+	if !slices.Equal(a.ExploredBitmasks, other.ExploredBitmasks) {
+		return false
+	}
+	if !slices.Equal(a.Doors, other.Doors) {
+		return false
+	}
+	if !slices.Equal(a.Animations, other.Animations) {
+		return false
+	}
+	if !slices.Equal(a.MapNotes, other.MapNotes) {
+		return false
+	}
+	if !slices.Equal(a.TiledObjects, other.TiledObjects) {
+		return false
+	}
+	if !slices.Equal(a.Traps, other.Traps) {
+		return false
+	}
+	if !reflect.DeepEqual(a.Songs, other.Songs) {
+		return false
+	}
+	if !reflect.DeepEqual(a.RestInterruptions, other.RestInterruptions) {
+		return false
+	}
+	return true
 }
 
 func OpenArea(r io.ReadSeeker) (*Area, error) {
@@ -505,24 +564,24 @@ func (are *Area) Write(w io.Writer) error {
 		return err
 	}
 	order := map[uint32]func() error{
-		are.ActorsOffset:            func() error { return binary.Write(w, binary.LittleEndian, are.Actors) },
-		are.RegionOffset:            func() error { return binary.Write(w, binary.LittleEndian, are.Regions) },
-		are.SpawnPointOffset:        func() error { return binary.Write(w, binary.LittleEndian, are.SpawnPoints) },
-		are.EntranceOffset:          func() error { return binary.Write(w, binary.LittleEndian, are.Entrances) },
-		are.ContainerOffset:         func() error { return binary.Write(w, binary.LittleEndian, are.Containers) },
-		are.ItemOffset:              func() error { return binary.Write(w, binary.LittleEndian, are.Items) },
-		are.VertexOffset:            func() error { return binary.Write(w, binary.LittleEndian, are.Vertices) },
-		are.AmbientOffset:           func() error { return binary.Write(w, binary.LittleEndian, are.Ambients) },
-		are.VariableOffset:          func() error { return binary.Write(w, binary.LittleEndian, are.Variables) },
-		are.TiledObjectFlagOffset:   func() error { return binary.Write(w, binary.LittleEndian, are.TiledObjects) },
-		are.ExploredOffset:          func() error { return binary.Write(w, binary.LittleEndian, are.ExploredBitmasks) },
-		are.DoorsOffset:             func() error { return binary.Write(w, binary.LittleEndian, are.Doors) },
-		are.AnimationOffset:         func() error { return binary.Write(w, binary.LittleEndian, are.Animations) },
-		are.TiledObjectOffset:       func() error { return binary.Write(w, binary.LittleEndian, are.TiledObjects) },
-		are.SongEntriesOffset:       func() error { return binary.Write(w, binary.LittleEndian, are.Songs) },
-		are.RestInterruptionsOffset: func() error { return binary.Write(w, binary.LittleEndian, are.RestInterruptions) },
-		are.AutomapOffset:           func() error { return binary.Write(w, binary.LittleEndian, are.MapNotes) },
-		are.ProjectileTrapsOffset:   func() error { return binary.Write(w, binary.LittleEndian, are.Traps) },
+		are.ActorsOffset:                  func() error { return binary.Write(w, binary.LittleEndian, are.Actors) },
+		are.RegionOffset:                  func() error { return binary.Write(w, binary.LittleEndian, are.Regions) },
+		are.SpawnPointOffset:              func() error { return binary.Write(w, binary.LittleEndian, are.SpawnPoints) },
+		are.EntranceOffset:                func() error { return binary.Write(w, binary.LittleEndian, are.Entrances) },
+		are.ContainerOffset:               func() error { return binary.Write(w, binary.LittleEndian, are.Containers) },
+		are.ItemOffset:                    func() error { return binary.Write(w, binary.LittleEndian, are.Items) },
+		are.VertexOffset:                  func() error { return binary.Write(w, binary.LittleEndian, are.Vertices) },
+		are.AmbientOffset:                 func() error { return binary.Write(w, binary.LittleEndian, are.Ambients) },
+		are.VariableOffset:                func() error { return binary.Write(w, binary.LittleEndian, are.Variables) },
+		uint32(are.TiledObjectFlagOffset): func() error { return binary.Write(w, binary.LittleEndian, are.TiledObjects) },
+		are.ExploredOffset:                func() error { return binary.Write(w, binary.LittleEndian, are.ExploredBitmasks) },
+		are.DoorsOffset:                   func() error { return binary.Write(w, binary.LittleEndian, are.Doors) },
+		are.AnimationOffset:               func() error { return binary.Write(w, binary.LittleEndian, are.Animations) },
+		are.TiledObjectOffset:             func() error { return binary.Write(w, binary.LittleEndian, are.TiledObjects) },
+		are.SongEntriesOffset:             func() error { return binary.Write(w, binary.LittleEndian, are.Songs) },
+		are.RestInterruptionsOffset:       func() error { return binary.Write(w, binary.LittleEndian, are.RestInterruptions) },
+		are.AutomapOffset:                 func() error { return binary.Write(w, binary.LittleEndian, are.MapNotes) },
+		are.ProjectileTrapsOffset:         func() error { return binary.Write(w, binary.LittleEndian, are.Traps) },
 	}
 	for _, key := range slices.Sorted(maps.Keys(order)) {
 		if err := order[key](); err != nil {

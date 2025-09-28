@@ -672,7 +672,7 @@ func (jw *JsonWed) ToWed() (*Wed, error) {
 		o := &wed.Overlays[idx]
 		o.Width = uint16(overlay.Width)
 		o.Height = uint16(overlay.Height)
-		o.Name = NewResref(overlay.Name)
+		o.Name = Resref([]byte(overlay.Name))
 		o.NumUniqueTiles = 0
 		o.LayerFlags = uint16(overlay.Flags)
 		o.TileIndexLookupOffset = 0
@@ -715,7 +715,7 @@ func (jw *JsonWed) ToWed() (*Wed, error) {
 	wed.DoorTileCells = make([]uint16, 0)
 	for idx, door := range jw.Doors {
 		d := &wed.Doors[idx]
-		d.Name = NewResref(door.Name)
+		d.Name = Resref([]byte(door.Name))
 		d.State = uint16(door.State)
 		d.DoorTileCellIndex = uint16(doorTileCellIndex)
 		effectedTiles := door.EffectedTiles(image.Point{jw.Overlays[0].PixelWidth(), jw.Overlays[0].PixelHeight()}, &jw.Overlays[0])
